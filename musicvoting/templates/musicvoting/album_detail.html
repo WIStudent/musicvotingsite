@@ -1,0 +1,10 @@
+<p>{{ album.album_name }}</p>
+{% if track_list %}
+	<ul>
+	{% for track in track_list %}
+		<li>{{ track.track_number }} -- {{ track.title }} -- {{track.artist.artist_name}} -- Votes: {{ track.votes}}</li>
+	{% endfor %}
+	<ul>
+{% else %}
+	<p>No tracks are available.</p>
+{% endif %}

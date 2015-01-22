@@ -1,0 +1,9 @@
+{% if album_list %}
+	<ul>
+	{% for album in album_list %}
+		<li>{{ album.album_name }}</li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No album are available.</p>
+{% endif %}
