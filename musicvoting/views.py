@@ -1,12 +1,23 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 import os
 from mutagen.mp3 import EasyMP3
 from musicvoting.models import Artist, Album, Track, User
 # Create your views here.
+
 def index(request):
-    return HttpResponse("Hello World")
+    #Set cookie
+    if 'voter_id' not in request.session:
+        cookie = False
+        voter = User()
+        voter.save()
+        request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
+    else:
+        cookie = True
+        
+    return HttpResponse("Hello World. Cookie: " + str(cookie))
 
 def artist(request):
     artist_list = Artist.objects.order_by('artist_name')
@@ -14,11 +25,26 @@ def artist(request):
     return render(request, 'musicvoting/artist.html', context)
 
 def artist_detail(request, pk):
+    #get voter_id from session or redirect to main page
+    if 'voter_id' in request.session:
+        try:
+            voter = User.objects.get(pk=request.session['voter_id'])
+        except User.DoesNotExist:
+            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            voter = User()
+            voter.save()
+            request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
+    else:
+        return redirect('musicvoting:index')
+    
     artist = get_object_or_404(Artist, pk=pk)
     track_list = Track.objects.filter(artist = artist).order_by('album__album_name', 'track_number')
     context = {
         'artist': artist,
-        'track_list': track_list
+        'track_list': track_list,
+        'voter': voter,
+        'path': request.path,
         }
     return render(request, 'musicvoting/artist_detail.html', context)
 
@@ -28,16 +54,7 @@ def album(request):
     return render(request, 'musicvoting/album.html', context)
 
 def album_detail(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    track_list = Track.objects.filter(album = album).order_by('track_number')
-    context = {
-        'album': album,
-        'track_list': track_list
-        }
-    return render(request, 'musicvoting/album_detail.html', context)
-
-def vote_track(request, pk):
-    #get voter_id from session or create one
+    #get voter_id from session or redirect to main page
     if 'voter_id' in request.session:
         try:
             voter = User.objects.get(pk=request.session['voter_id'])
@@ -46,28 +63,53 @@ def vote_track(request, pk):
             voter = User()
             voter.save()
             request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
     else:
-        voter = User()
-        voter.save()
-        request.session['voter_id'] = voter.id
+        return redirect('musicvoting:index')
 
-    request.session.set_expiry(24*60*60)
+    album = get_object_or_404(Album, pk=pk)
+    track_list = Track.objects.filter(album = album).order_by('track_number')
+    context = {
+        'album': album,
+        'track_list': track_list,
+        'voter': voter,
+        'path': request.path,
+        }
+    return render(request, 'musicvoting/album_detail.html', context)
+
+def vote_track(request, pk):
+    #get voter_id from session or redirect to main page
+    if 'voter_id' in request.session:
+        try:
+            voter = User.objects.get(pk=request.session['voter_id'])
+        except User.DoesNotExist:
+            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            voter = User()
+            voter.save()
+            request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
+    else:
+        return redirect('musicvoting:index')
+
+    
 
     #Get track
     track = get_object_or_404(Track, pk=pk)
     try:
         #If voter already voted for this track
         track.voting_users.get(pk=voter.id)
-        return HttpResponse("You already voted.")
+        #return HttpResponse("You already voted.")
     #Else
     except User.DoesNotExist:
         track.voting_users.add(voter)
         track.votes += 1
         track.save()
-        return HttpResponse("You voted. " + track.title + " Votes : " + str(track.votes))
+        #return HttpResponse("You voted. " + track.title + " Votes : " + str(track.votes))
+    #Redirect to page where vote button was pressed.
+    return HttpResponseRedirect(request.GET['next'])
 
 def unvote_track(request, pk):
-    #get voter_id from session or create one
+    #get voter_id from session or redirect to main page
     if 'voter_id' in request.session:
         try:
             voter = User.objects.get(pk=request.session['voter_id'])
@@ -76,12 +118,9 @@ def unvote_track(request, pk):
             voter = User()
             voter.save()
             request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
     else:
-        voter = User()
-        voter.save()
-        request.session['voter_id'] = voter.id
-
-    request.session.set_expiry(24*60*60)
+        redirect('musicvoting:index')
 
     track = get_object_or_404(Track, pk=pk)
     try:
@@ -90,13 +129,14 @@ def unvote_track(request, pk):
         track.voting_users.remove(voter)
         track.votes -= 1
         track.save()
-        return HttpResponse("You unvoted. "  + track.title + " Votes : " + str(track.votes))
+        #return HttpResponse("You unvoted. "  + track.title + " Votes : " + str(track.votes))
     except User.DoesNotExist:
         #If voter never voted for this track in the first place.
-        return HttpResponse("You never voted for this Track in the first place.")
+        #return HttpResponse("You never voted for this Track in the first place.")
+        pass
+    #Redirect to page where unvote button was pressed.
+    return HttpResponseRedirect(request.GET['next'])
 
-       
-           
 
 def dbimport(request):
     permission = request.user.is_superuser

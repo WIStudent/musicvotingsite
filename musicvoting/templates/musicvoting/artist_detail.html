@@ -2,7 +2,19 @@
 {% if track_list %}
 	<ul>
 	{% for track in track_list %}
-		<li>{{ track.album.album_name }} -- {{ track.track_number }} -- {{ track.title }} -- Votes: {{ track.votes}}</li>
+		<li>{{ track.album.album_name }} -- {{ track.track_number }} -- {{ track.title }} -- Votes: {{ track.votes}}
+		{% if voter in track.voting_users.all %}
+				<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
+				{% csrf_token %}
+					<input type="submit" value="Unvote" />
+				</form>
+			{% else %}
+				<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
+				{% csrf_token %}
+					<input type="submit" value="Vote" />
+				</form>
+			{% endif %}		
+		</li>
 	{% endfor %}
 	<ul>
 {% else %}

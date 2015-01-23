@@ -2,7 +2,7 @@
 {% if track_list %}
 	<ul>
 	{% for track in track_list %}
-		<li>{{ track.album.album_name }} -- {{ track.track_number }} -- {{ track.title }}</li>
+		<li>{{ track.album.album_name }} -- {{ track.track_number }} -- {{ track.title }} -- Votes: {{ track.votes}}</li>
 	{% endfor %}
 	<ul>
 {% else %}
