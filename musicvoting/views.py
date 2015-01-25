@@ -1,10 +1,73 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
-import os
+import os, socket
 from mutagen.mp3 import EasyMP3
 from musicvoting.models import Artist, Album, Track, User
 # Create your views here.
+MSGLEN = 7
+class mysocket:
+    #from https://docs.python.org/2/howto/sockets.html
+    
+    
+    def __init__(self, sock=None):
+        if sock is None:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        else:
+            self.sock = sock
+
+    def connect(self, host, port):
+        self.sock.connect((host, port))
+
+    def mysend(self, msg):
+        totalsent = 0
+        while totalsent < MSGLEN:
+            sent = self.sock.send(msg[totalsent:])
+            if sent == 0:
+                raise RuntimeError("socket connection broken")
+            totalsent = totalsent + sent
+
+    def myreceive(self):
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < MSGLEN:
+            chunk= self.sock.recv(min(MSGLEN - bytes_recd, 2048))
+            if chunk == "":
+                raise RuntimeError("socket connection brocken")
+            chunks.append(chunk)
+            bytes_recd = bytes_recd + len(chunk)
+        return ''.join(chunks)
+
+
+def pause(request):
+    sock = mysocket()
+    sock.connect('127.0.0.1', 9999)
+    sock.mysend(format(1, '07'))
+    answer = sock.myreceive()
+    if answer == format(1, '07'):
+        return HttpResponse("Music is paused. " + answer)
+    else:
+        return HttpResponse("ERROR")
+
+def unpause(request):
+    sock = mysocket()
+    sock.connect('127.0.0.1', 9999)
+    sock.mysend(format(2, '07'))
+    answer = sock.myreceive()
+    if answer == format(1, '07'):
+        return HttpResponse("Music is unpaused. " + answer)
+    else:
+        return HttpResponse("ERROR")
+
+def next_track(request):
+    sock = mysocket()
+    sock.connect('127.0.0.1', 9999)
+    sock.mysend(format(3, '07'))
+    answer = sock.myreceive()
+    if answer == format(1, '07'):
+        return HttpResponse("playing next track. " + answer)
+    else:
+        return HttpResponse("ERROR") 
 
 def index(request):
     #Set cookie

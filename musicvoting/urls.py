@@ -19,4 +19,10 @@ urlpatterns = patterns('',
                        url(r'^vote/(?P<pk>\d+)/$', views.vote_track, name='vote_track'),
                        # ex: /unvote/2/
                        url(r'^unvote/(?P<pk>\d+)/$', views.unvote_track, name='unvote_track'),
+                       # ex: /pause/
+                       url(r'^pause/$', views.pause, name='pause'),
+                       # ex: /unpause/
+                       url(r'^unpause/$', views.unpause, name='unpause'),
+                       # ex: /next/
+                       url(r'^next/$', views.next_track, name='next'),
                        )

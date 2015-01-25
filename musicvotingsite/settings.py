@@ -85,3 +85,6 @@ STATIC_URL = '/static/'
 
 # musicvoting settings
 MUSICVOTING_MUSIC_DIR = '/media/TOBIASTRUMM/Musik'
+
+# Force lighttpd to get the {% url %} tags right
+FORCE_SCRIPT_NAME = ''
