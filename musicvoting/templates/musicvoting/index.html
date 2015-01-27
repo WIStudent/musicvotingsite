@@ -1,0 +1,32 @@
+{% if not cookie %}
+	<p>This website uses cookies. Please refresh the site. If you still see this message, make sure that cookies are enabled in your browser.</p>
+{% endif %} 
+<p>Current playing:<p>
+<h1>{{ current_track.artist.artist_name }}: {{ current_track.title }}</h1>
+<p>Album: {{ current_track.album.album_name }}</p>
+<a href="{% url 'musicvoting:artist' %}">Artists</a>
+<a href="{% url 'musicvoting:album' %}">Albums</a>
+<h2>Top most voted tracks</h2>
+	{% if track_ranking %}
+		<ul>
+		{% for track in track_ranking %}
+			<li>{{ track.artist.artist_name }} -- {{ track.album.album_name }} -- {{ track.title }} -- Votes: {{ track.votes}}
+				{% if cookie %}
+					{% if voter in track.voting_users.all %}
+						<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
+						{% csrf_token %}
+							<input type="submit" value="Unvote" />
+						</form>
+					{% else %}
+						<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
+						{% csrf_token %}
+							<input type="submit" value="Vote" />
+						</form>
+					{% endif %}
+				{% endif %}		
+			</li>
+		{% endfor %}
+		<ul>
+	{% else %}
+		<p>No tracks are available.</p>
+	{% endif %}

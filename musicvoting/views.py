@@ -4,66 +4,37 @@ from django.conf import settings
 import os, socket
 from mutagen.mp3 import EasyMP3
 from musicvoting.models import Artist, Album, Track, User
+import musicvoting.mysocket as mysocket
 # Create your views here.
-MSGLEN = 7
-class mysocket:
-    #from https://docs.python.org/2/howto/sockets.html
-    
-    
-    def __init__(self, sock=None):
-        if sock is None:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        else:
-            self.sock = sock
-
-    def connect(self, host, port):
-        self.sock.connect((host, port))
-
-    def mysend(self, msg):
-        totalsent = 0
-        while totalsent < MSGLEN:
-            sent = self.sock.send(msg[totalsent:])
-            if sent == 0:
-                raise RuntimeError("socket connection broken")
-            totalsent = totalsent + sent
-
-    def myreceive(self):
-        chunks = []
-        bytes_recd = 0
-        while bytes_recd < MSGLEN:
-            chunk= self.sock.recv(min(MSGLEN - bytes_recd, 2048))
-            if chunk == "":
-                raise RuntimeError("socket connection brocken")
-            chunks.append(chunk)
-            bytes_recd = bytes_recd + len(chunk)
-        return ''.join(chunks)
-
 
 def pause(request):
-    sock = mysocket()
-    sock.connect('127.0.0.1', 9999)
+    sock = mysocket.Mysocket()
+    sock.connect(mysocket.ADDR, mysocket.PORT)
     sock.mysend(format(1, '07'))
     answer = sock.myreceive()
+    sock.close()
     if answer == format(1, '07'):
         return HttpResponse("Music is paused. " + answer)
     else:
         return HttpResponse("ERROR")
 
 def unpause(request):
-    sock = mysocket()
-    sock.connect('127.0.0.1', 9999)
+    sock = mysocket.Mysocket()
+    sock.connect(mysocket.ADDR, mysocket.PORT)
     sock.mysend(format(2, '07'))
     answer = sock.myreceive()
+    sock.close()
     if answer == format(1, '07'):
         return HttpResponse("Music is unpaused. " + answer)
     else:
         return HttpResponse("ERROR")
 
 def next_track(request):
-    sock = mysocket()
-    sock.connect('127.0.0.1', 9999)
+    sock = mysocket.Mysocket()
+    sock.connect(mysocket.ADDR, mysocket.PORT)
     sock.mysend(format(3, '07'))
     answer = sock.myreceive()
+    sock.close()
     if answer == format(1, '07'):
         return HttpResponse("playing next track. " + answer)
     else:
@@ -78,9 +49,30 @@ def index(request):
         request.session['voter_id'] = voter.id
         request.session.set_expiry(24*60*60)
     else:
+        voter = User.objects.get(pk=request.session['voter_id'])
         cookie = True
         
-    return HttpResponse("Hello World. Cookie: " + str(cookie))
+    #Get current track
+    sock = mysocket.Mysocket()
+    sock.connect(mysocket.ADDR, mysocket.PORT)
+    sock.mysend(format(4, '07'))
+    answer = sock.myreceive()
+    sock.close()
+    
+    current_track = Track.objects.get(pk=int(answer))
+
+    #Get tracks ranked by votes
+    track_ranking = Track.objects.filter(votes__gt=0).order_by('-votes')
+
+    context = {
+        'current_track': current_track,
+        'track_ranking': track_ranking,
+        'cookie': cookie,
+        'voter': voter,
+        'path': request.path
+        }
+    return render(request, 'musicvoting/index.html', context)
+    #return HttpResponse("Hello World. Cookie: " + str(cookie) + "\n current Track: " + current_track.title)
 
 def artist(request):
     artist_list = Artist.objects.order_by('artist_name')
