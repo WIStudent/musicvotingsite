@@ -83,6 +83,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT ="/home/pi/Django/musicvotingsite/static_root/"
+
 # musicvoting settings
 MUSICVOTING_MUSIC_DIR = '/media/TOBIASTRUMM/Musik'
 

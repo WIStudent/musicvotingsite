@@ -1,0 +1,11 @@
+#index_content #menu li{
+	display: inline-block;
+	text-align: center;
+	width: 49%;
+}
+
+#index_content #menu ul{
+	padding: 0;
+}
+
+
