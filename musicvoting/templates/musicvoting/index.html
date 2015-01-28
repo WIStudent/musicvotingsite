@@ -1,22 +1,29 @@
 {% load staticfiles %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" />
+<meta name="viewport" content="width=device-width">
 <div id="index_content" class="content">
 	{% if not cookie %}
 		<p>This website uses cookies. Please refresh the site. If you still see this message, make sure that cookies are enabled in your browser.</p>
 	{% endif %} 
+	<div id="breadcrumb">
+		<ul>
+			<li>Home</li>
+		</ul>
+	</div>
 	<div id="player">
-		<p>Now playing:</p>
-		<h1>{{ current_track.artist.artist_name }}: {{ current_track.title }}</h1>
-		<p>Album: {{ current_track.album.album_name }}</p>
+		<div id="now_playing">Now playing:</div>
+		<div id="track_title">{{ current_track.title }}</div>		
+		<div id="artist_name">Artist: <a href="{% url 'musicvoting:artist_detail' current_track.artist.id %}">{{ current_track.artist.artist_name }}</a></div>
+		<div id="album_name">Album: <a href="{% url 'musicvoting:album_detail' current_track.album.id %}">{{ current_track.album.album_name }}</a></div>
 	</div>
 	<div id="menu">
 		<ul>
-			<li><a href="{% url 'musicvoting:artist' %}" id="artists">Artists</a></li>
-			<li><a href="{% url 'musicvoting:album' %}" id="albums">Albums</a></li>
+			<li id="menu_left"><a href="{% url 'musicvoting:artist' %}" id="artists">Artists</a></li>
+			<li id="menu_right"><a href="{% url 'musicvoting:album' %}" id="albums">Albums</a></li>
 		</ul>
 	</div>
-	<div id="track_ranking">
+	<div id="track_ranking" class="track_list">
 		<h2>Top most voted tracks</h2>
 		{% if track_ranking %}
 			<ul>

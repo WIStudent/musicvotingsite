@@ -1,11 +1,69 @@
+@font-face{
+	font-family: 'Open Sans';
+	font-style: normal;
+	font-weight: 400;
+	src: url('Open_Sans/OpenSans-Regular.woff') format('woff'), 
+	     url('Open_Sans/OpenSans-Regular.ttf') format('truetype');
+}
+
 #index_content #menu li{
 	display: inline-block;
 	text-align: center;
 	width: 49%;
+	background: none repeat scroll 0 0 #bdbdbd;
+	padding: 0.5em 0em;
+}
+
+#index_content #menu #menu_right{
+	float: right;
+}
+
+#index_content #menu #menu_left{
+	float:left;
+}
+
+#menu a, #breadcrumb a{
+	text-decoration: none;
+}
+
+#breadcrumb ul{
+	padding: 0;
+	margin: 0;
+}
+
+#breadcrumb li{
+	display: inline-block;
+}
+
+#breadcrumb li + li:before{
+	content: "> ";
 }
 
 #index_content #menu ul{
 	padding: 0;
+	margin: 0;
 }
 
+body{
+	margin: 0;
+	font-family: 'Open Sans', Fallback, sans-serif;
+}
+
+.content{
+	width:100%;
+}
+
+#breadcrumb{
+	padding: 0.5em 1em;
+	background: none repeat scroll 0 0 #a4a4a4;
+}
+
+.track_list{
+	padding: 0.5em 1em;
+}
+
+.track_list ul{
+	list-style-type: none;
+	padding: 0;
+}
 

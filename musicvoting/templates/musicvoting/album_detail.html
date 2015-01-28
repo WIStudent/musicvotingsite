@@ -1,24 +1,36 @@
-<a href="{% url 'musicvoting:index' %}">Home</a>
-<a href="{% url 'musicvoting:album' %}">Albums</a>
-<p>{{ album.album_name }}</p>
-{% if track_list %}
-	<ul>
-	{% for track in track_list %}
-		<li>{{ track.track_number }} -- {{ track.title }} -- {{track.artist.artist_name}} -- Votes: {{ track.votes}}
-			{% if voter in track.voting_users.all %}
-				<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
-				{% csrf_token %}
-					<input type="submit" value="Unvote" />
-				</form>
-			{% else %}
-				<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
-				{% csrf_token %}
-					<input type="submit" value="Vote" />
-				</form>
-			{% endif %}		
-		</li>
-	{% endfor %}
-	<ul>
-{% else %}
-	<p>No tracks are available.</p>
-{% endif %}
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" />
+<meta name="viewport" content="width=device-width">
+
+<div id="index_content" class="content">
+	
+	<div id="breadcrumb">
+		<ul>
+			<li><a href="{% url 'musicvoting:index' %}">Home</a></li>
+			<li><a href="{% url 'musicvoting:album' %}">Albums</a></li>
+			<li>{{ album.album_name }}</li>
+		</ul>
+	</div>
+	{% if track_list %}
+		<ul>
+		{% for track in track_list %}
+			<li>{{ track.track_number }} -- {{ track.title }} -- {{track.artist.artist_name}} -- Votes: {{ track.votes}}
+				{% if voter in track.voting_users.all %}
+					<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
+					{% csrf_token %}
+						<input type="submit" value="Unvote" />
+					</form>
+				{% else %}
+					<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
+					{% csrf_token %}
+						<input type="submit" value="Vote" />
+					</form>
+				{% endif %}		
+			</li>
+		{% endfor %}
+		<ul>
+	{% else %}
+		<p>No tracks are available.</p>
+	{% endif %}
+</div>
