@@ -8,10 +8,22 @@
 
 #index_content #menu li{
 	display: inline-block;
-	text-align: center;
 	width: 49%;
-	background: none repeat scroll 0 0 #bdbdbd;
-	padding: 0.5em 0em;
+	background: none repeat scroll 0 0 #bdbdbd
+}
+
+#index_content #menu a{
+	display: block;
+	height: 2.5em;
+	width: 100%;
+	position: relative;
+}
+
+#index_content #menu a div {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 #index_content #menu #menu_right{
@@ -42,6 +54,7 @@
 #index_content #menu ul{
 	padding: 0;
 	margin: 0;
+	overflow: hidden;
 }
 
 body{
@@ -53,17 +66,55 @@ body{
 	width:100%;
 }
 
+#index_content #player{
+	padding: 0.5em 1em;
+}
+
 #breadcrumb{
 	padding: 0.5em 1em;
 	background: none repeat scroll 0 0 #a4a4a4;
 }
 
-.track_list{
-	padding: 0.5em 1em;
+#index_content #track_ranking{
+	padding: 0.5em 0em;
+	overflow: hidden;
 }
 
-.track_list ul{
+#index_content #track_ranking h2{
+	padding: 0em 0.75em;
+	margin: 0;
+}
+
+#index_content #track_ranking p{
+	padding: 0.25em 1em;
+	margin: 0em;
+}
+
+.track_list li{
+	overflow: hidden;
+	padding: 0.25em 1em;
+}
+
+.track_list li:nth-child(2n+1) {
+	background: none repeat scroll 0 0 #d8d8d8;
+}
+
+.track_list{
 	list-style-type: none;
 	padding: 0;
+	margin: 0;
+}
+
+.track_list .track_info {
+	float: left;
+	width:78%;
+}
+
+.track_list .track_vote {
+	float:right;
+}
+
+.track_list .track_vote form{
+	margin: 0;
 }
 

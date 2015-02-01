@@ -13,23 +13,32 @@
 		</ul>
 	</div>
 	{% if track_list %}
-		<ul>
-		{% for track in track_list %}
-			<li>{{ track.track_number }} -- {{ track.title }} -- {{track.artist.artist_name}} -- Votes: {{ track.votes}}
-				{% if voter in track.voting_users.all %}
-					<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
-					{% csrf_token %}
-						<input type="submit" value="Unvote" />
-					</form>
-				{% else %}
-					<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
-					{% csrf_token %}
-						<input type="submit" value="Vote" />
-					</form>
-				{% endif %}		
-			</li>
-		{% endfor %}
-		<ul>
+		<ul class="track_list">
+			{% for track in track_list %}
+				<li id="track-{{ track.id }}" class="track">
+					<div class="track_info">
+						<div>{{ track.track_number }} - {{ track.title }}</div>
+						<div>Artist: <a href="{% url 'musicvoting:artist_detail' track.artist.id %}">{{ track.artist.artist_name }}</a></div>
+					</div>
+					<div class="track_vote">					
+						<div>
+							{% if voter in track.voting_users.all %}
+								<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
+								{% csrf_token %}
+									<input type="submit" value="Unvote" />
+								</form>
+							{% else %}
+								<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
+								{% csrf_token %}
+									<input type="submit" value="Vote" />
+								</form>
+							{% endif %}
+						</div>
+						<div>Votes: {{ track.votes }}</div>
+					</div>
+				</li>
+			{% endfor %}
+			<ul>
 	{% else %}
 		<p>No tracks are available.</p>
 	{% endif %}
