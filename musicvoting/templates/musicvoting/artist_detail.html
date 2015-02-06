@@ -1,7 +1,11 @@
 {% load staticfiles %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" />
+<script src="{% static 'musicvoting/scripts.js' %}" type="text/javascript"></script>
 <meta name="viewport" content="width=device-width">
+
+
+
 
 <div id="index_content" class="content">
 	
@@ -23,18 +27,12 @@
 					<div class="track_vote">					
 						<div>
 							{% if voter in track.voting_users.all %}
-								<form action="{% url 'musicvoting:unvote_track' track.id %}?next={{ path }}" method="post">
-								{% csrf_token %}
-									<input type="submit" value="Unvote" />
-								</form>
+								<input type="button" value="Unvote" onClick="unvote({{ track.id }})"/
 							{% else %}
-								<form action="{% url 'musicvoting:vote_track' track.id %}?next={{ path }}" method="post">
-								{% csrf_token %}
-									<input type="submit" value="Vote" />
-								</form>
+								<input type="button" value="Vote" onClick="vote({{ track.id }})"/>
 							{% endif %}
 						</div>
-						<div>Votes: {{ track.votes }}</div>
+						<div class="votes">Votes: {{ track.votes }}</div>
 					</div>
 				</li>
 			{% endfor %}

@@ -160,8 +160,8 @@ def vote_track(request, pk):
         track.votes += 1
         track.save()
         #return HttpResponse("You voted. " + track.title + " Votes : " + str(track.votes))
-    #Redirect to page where vote button was pressed.
-    return HttpResponseRedirect(request.GET['next'])
+    #Refresh vote counter when vote button was pressed.
+    return HttpResponse("Votes: " + str(track.votes));
 
 def unvote_track(request, pk):
     #get voter_id from session or redirect to main page
@@ -189,8 +189,8 @@ def unvote_track(request, pk):
         #If voter never voted for this track in the first place.
         #return HttpResponse("You never voted for this Track in the first place.")
         pass
-    #Redirect to page where unvote button was pressed.
-    return HttpResponseRedirect(request.GET['next'])
+    #Refresh vote counter when unvote button was pressed.
+    return HttpResponse("Votes: " + str(track.votes));
 
 
 def dbimport(request):
