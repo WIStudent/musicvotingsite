@@ -6,6 +6,10 @@
 	     url('Open_Sans/OpenSans-Regular.ttf') format('truetype');
 }
 
+a:visited{
+	color:blue;
+}
+
 #index_content #menu li{
 	display: inline-block;
 	width: 49%;
@@ -116,5 +120,21 @@ body{
 
 .track_list .track_vote form{
 	margin: 0;
+}
+
+.album_artist_list ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.album_artist_list a{
+	padding: 0.5em 1em;
+	display: block;
+	text-decoration: none;
+}
+
+.album_artist_list li:nth-child(2n+1){
+	background: none repeat scroll 0 0 #d8d8d8;
 }
 

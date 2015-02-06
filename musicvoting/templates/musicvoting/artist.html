@@ -3,7 +3,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" />
 <meta name="viewport" content="width=device-width">
 
-<div id="index_content" class="content">
+<div class="content">
 	
 	<div id="breadcrumb">
 		<ul>
@@ -11,13 +11,15 @@
 			<li>Artists</li>
 		</ul>
 	</div>
-	{% if artist_list %}
-		<ul>
-		{% for artist in artist_list %}
-			<li><a href="{% url 'musicvoting:artist_detail' artist.id %}">{{ artist.artist_name }}</a></li>
-		{% endfor %}
-		</ul>
-	{% else %}
-		<p>No artist are available.</p>
-	{% endif %}
+	<div class="album_artist_list">
+		{% if artist_list %}
+			<ul>
+			{% for artist in artist_list %}
+				<li><a href="{% url 'musicvoting:artist_detail' artist.id %}">{{ artist.artist_name }}</a></li>
+			{% endfor %}
+			</ul>
+		{% else %}
+			<p>No artist are available.</p>
+		{% endif %}
+	</div>
 </div>
