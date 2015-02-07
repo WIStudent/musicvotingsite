@@ -64,6 +64,9 @@ function next(){
 	myAjax.onreadystatechange=function(){
 		if(myAjax.readyState==4 && myAjax.status==200){
 			document.getElementById("player").outerHTML = myAjax.responseText;
+			button = document.getElementsByName("pause_play_button")[0];
+			button.onclick = pause;
+			button.value = "Pause";
 		}
 	};
 	myAjax.open("GET", "/next/", true);
