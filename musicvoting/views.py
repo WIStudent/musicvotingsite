@@ -8,37 +8,54 @@ import musicvoting.mysocket as mysocket
 # Create your views here.
 
 def pause(request):
-    sock = mysocket.Mysocket()
-    sock.connect(mysocket.ADDR, mysocket.PORT)
-    sock.mysend(format(1, '07'))
-    answer = sock.myreceive()
-    sock.close()
-    if answer == format(1, '07'):
-        return HttpResponse("Music is paused. " + answer)
+    #check if admin
+    permission = request.user.is_superuser
+    if permission == True:
+        sock = mysocket.Mysocket()
+        sock.connect(mysocket.ADDR, mysocket.PORT)
+        sock.mysend(format(1, '07'))
+        answer = sock.myreceive()
+        sock.close()
+        if answer == format(1, '07'):
+            return HttpResponse("Music is paused. " + answer)
+        else:
+            return HttpResponse("ERROR")
     else:
-        return HttpResponse("ERROR")
+        return HttpResponse('Unauthorized', status=401)
+
 
 def unpause(request):
-    sock = mysocket.Mysocket()
-    sock.connect(mysocket.ADDR, mysocket.PORT)
-    sock.mysend(format(2, '07'))
-    answer = sock.myreceive()
-    sock.close()
-    if answer == format(1, '07'):
-        return HttpResponse("Music is unpaused. " + answer)
+    permission = request.user.is_superuser
+    if permission == True:
+        sock = mysocket.Mysocket()
+        sock.connect(mysocket.ADDR, mysocket.PORT)
+        sock.mysend(format(2, '07'))
+        answer = sock.myreceive()
+        sock.close()
+        if answer == format(1, '07'):
+            return HttpResponse("Music is unpaused. " + answer)
+        else:
+            return HttpResponse("ERROR")
     else:
-        return HttpResponse("ERROR")
+        return HttpResponse('Unauthorized', status=401)
+    
 
 def next_track(request):
-    sock = mysocket.Mysocket()
-    sock.connect(mysocket.ADDR, mysocket.PORT)
-    sock.mysend(format(3, '07'))
-    answer = sock.myreceive()
-    sock.close()
-    if answer == format(1, '07'):
-        return HttpResponse("playing next track. " + answer)
+    permission = request.user.is_superuser
+    if permission == True:
+        sock = mysocket.Mysocket()
+        sock.connect(mysocket.ADDR, mysocket.PORT)
+        sock.mysend(format(3, '07'))
+        answer = sock.myreceive()
+        sock.close()
+        current_track = get_object_or_404(Track, pk=int(answer))
+        context = {
+            'current_track': current_track,
+            }
+        return render(request, 'musicvoting/player.html', context)
+        
     else:
-        return HttpResponse("ERROR") 
+        return HttpResponse('Unautorized', status=401)
 
 def index(request):
     #Set cookie
@@ -61,18 +78,38 @@ def index(request):
     
     current_track = Track.objects.get(pk=int(answer))
 
+    #Get current playing status
+    sock = mysocket.Mysocket()
+    sock.connect(mysocket.ADDR, mysocket.PORT)
+    sock.mysend(format(5, '07'))
+    answer = sock.myreceive()
+    sock.close()
+
+    if answer == format(1, '07'):
+        playing = True
+    elif answer == format(0, '07'):
+        playing = False
+    else:
+        playing = 'Error'
+        
     #Get tracks ranked by votes
     track_ranking = Track.objects.filter(votes__gt=0).order_by('-votes')
+
+    #Check if admin
+    admin = request.user.is_superuser
 
     context = {
         'current_track': current_track,
         'track_ranking': track_ranking,
         'cookie': cookie,
         'voter': voter,
-        'path': request.path
+        'playing': playing,
+        'admin': admin,
         }
-    return render(request, 'musicvoting/index.html', context)
-    #return HttpResponse("Hello World. Cookie: " + str(cookie) + "\n current Track: " + current_track.title)
+    response = render(request, 'musicvoting/index.html', context)
+    if cookie == False:
+        response.set_cookie('test_cookie', 'true')
+    return response
 
 def artist(request):
     artist_list = Artist.objects.order_by('artist_name')

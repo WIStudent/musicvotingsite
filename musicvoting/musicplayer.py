@@ -10,6 +10,7 @@ import musicvoting.mysocket as mysocket
 SONG_END = pygame.USEREVENT + 1
 
 current_track = None
+playing = False
 
 
 def next_track():
@@ -23,6 +24,8 @@ def next_track():
     print (current_track.title + " votes: " + str(max_votes))
     pygame.mixer.music.load(current_track.path)
     pygame.mixer.music.play()
+    global playing
+    playing = True
 
 def handle_clientsocket(clientsocket):
     mysock = mysocket.Mysocket(clientsocket)
@@ -31,19 +34,24 @@ def handle_clientsocket(clientsocket):
     if msg == format(1, '07'):
         print "pausing music"
         pygame.mixer.music.pause()
+        global playing
+        playing = False
         mysock.mysend(format(1, '07'))
         mysock.close()
     #unpause
     elif msg == format(2, '07'):
         print "unpausing music"
         pygame.mixer.music.unpause()
+        global playing
+        playing = True
         mysock.mysend(format(1, '07'))
         mysock.close()
     #nexttrack
     elif msg == format(3, '07'):
         print "playing next track"
         next_track()
-        mysock.mysend(format(1, '07'))
+        global current_track
+        mysock.mysend(format(current_track.id, '07'))
         mysock.close()
     #get track
     elif msg == format(4, '07'):
@@ -53,7 +61,8 @@ def handle_clientsocket(clientsocket):
         mysock.close()
     #is playing?
     elif msg == format(5, '07'):
-        if pygame.mixer.music.get_busy():
+        global playing
+        if playing:
             mysock.mysend(format(1, '07'))
         else:
             mysock.mysend(format(0, '07'))

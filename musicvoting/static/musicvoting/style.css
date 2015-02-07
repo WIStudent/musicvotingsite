@@ -74,6 +74,10 @@ body{
 	padding: 0.5em 1em;
 }
 
+#index_content #player_control{
+	padding: 0 1em 0.5em;
+}
+
 #breadcrumb{
 	padding: 0.5em 1em;
 	background: none repeat scroll 0 0 #a4a4a4;

@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width">
 <div id="index_content" class="content">
 	{% if not cookie %}
-		<p>This website uses cookies. Please refresh the site. If you still see this message, make sure that cookies are enabled in your browser.</p>
+	<div id="cookie_warning">
+		This website uses cookies. Please enable cookies in your browser and refresh the page.
+	</div>
+	<script type="text/javascript">
+	<!--
+	var test_cookie = getCookie("test_cookie");
+	if (test_cookie == "true"){
+		document.getElementById("cookie_warning").style.display = 'none';
+		document.cookie = "test_cookie=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+	}
+	//-->
+	</script>
 	{% endif %} 
 	<div id="breadcrumb">
 		<ul>
@@ -18,6 +29,16 @@
 		<div id="artist_name">Artist: <a href="{% url 'musicvoting:artist_detail' current_track.artist.id %}">{{ current_track.artist.artist_name }}</a></div>
 		<div id="album_name">Album: <a href="{% url 'musicvoting:album_detail' current_track.album.id %}">{{ current_track.album.album_name }}</a></div>
 	</div>
+	{% if admin %}
+	<div id="player_control">
+		{% if playing %}
+		<input name="pause_play_button" type="button" value="Pause" onClick="pause()" />
+		{% else %}
+		<input name="pause_play_button" type="button" value="Unpause" onClick="unpause()" />
+		{% endif %}
+		<input name="next_button" type="button" value="Next" onClick="next()" />
+	</div>
+	{% endif %}
 	<div id="menu">
 		<ul>
 			<li id="menu_left"><a href="{% url 'musicvoting:artist' %}" id="artists"><div>Artists</div></a></li>
@@ -38,7 +59,7 @@
 					<div class="track_vote">					
 						<div>
 							{% if voter in track.voting_users.all %}
-								<input type="button" value="Unvote" onClick="unvote({{ track.id }})"/
+								<input type="button" value="Unvote" onClick="unvote({{ track.id }})"/>
 							{% else %}
 								<input type="button" value="Vote" onClick="vote({{ track.id }})"/>
 							{% endif %}

@@ -1,0 +1,6 @@
+<div id="player">
+		<div id="now_playing">Now playing:</div>
+		<div id="track_title">{{ current_track.title }}</div>		
+		<div id="artist_name">Artist: <a href="{% url 'musicvoting:artist_detail' current_track.artist.id %}">{{ current_track.artist.artist_name }}</a></div>
+		<div id="album_name">Album: <a href="{% url 'musicvoting:album_detail' current_track.album.id %}">{{ current_track.album.album_name }}</a></div>
+</div>
