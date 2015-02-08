@@ -56,6 +56,7 @@ def handle_clientsocket(clientsocket):
     #get track
     elif msg == format(4, '07'):
         global current_track
+        #send back id of new track
         ret = format(current_track.id, '07')
         mysock.mysend(ret)
         mysock.close()

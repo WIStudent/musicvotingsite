@@ -1,3 +1,5 @@
+var csrftoken = getCookie('csrftoken');
+
 function vote(track_id){
 	myAjax = new XMLHttpRequest();
 
@@ -10,7 +12,8 @@ function vote(track_id){
 			track_vote.getElementsByClassName("votes")[0].innerHTML = myAjax.responseText;
 		}
 	}; 
-	myAjax.open("GET", "/vote/" + track_id + "/", true);
+	myAjax.open("POST", "/vote/" + track_id + "/", true);
+	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
 }
 
@@ -26,7 +29,8 @@ function unvote(track_id){
 			track_vote.getElementsByClassName("votes")[0].innerHTML = myAjax.responseText;
 		}
 	}; 
-	myAjax.open("GET", "/unvote/" + track_id + "/", true);
+	myAjax.open("POST", "/unvote/" + track_id + "/", true);
+	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
 }
 
@@ -40,7 +44,8 @@ function pause(){
 			button.value = "Unpause";
 		}
 	};
-	myAjax.open("GET", "/pause/", true);
+	myAjax.open("POST", "/pause/", true);
+	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
 }
 
@@ -54,7 +59,8 @@ function unpause(){
 			button.value = "Pause";
 		}
 	};
-	myAjax.open("GET", "/unpause/", true);
+	myAjax.open("POST", "/unpause/", true);
+	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
 }
 
@@ -69,7 +75,8 @@ function next(){
 			button.value = "Pause";
 		}
 	};
-	myAjax.open("GET", "/next/", true);
+	myAjax.open("POST", "/next/", true);
+	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
 }
 
