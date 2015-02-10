@@ -76,6 +76,7 @@ body{
 
 #index_content #player_control{
 	padding: 0 1em 0.5em;
+	position: relative;
 }
 
 #breadcrumb{
@@ -120,6 +121,7 @@ body{
 
 .track_list .track_vote {
 	float:right;
+	position: relative;
 }
 
 .track_list .track_vote form{
