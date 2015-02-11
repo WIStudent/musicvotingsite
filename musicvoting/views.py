@@ -169,65 +169,73 @@ def album_detail(request, pk):
         }
     return render(request, 'musicvoting/album_detail.html', context)
 
-def vote_track(request, pk):
-    #get voter_id from session or redirect to main page
-    if 'voter_id' in request.session:
-        try:
-            voter = User.objects.get(pk=request.session['voter_id'])
-        except User.DoesNotExist:
-            #In case there is a cookie with a voter_id but not an coresponding entry in the database
-            voter = User()
-            voter.save()
-            request.session['voter_id'] = voter.id
-        request.session.set_expiry(24*60*60)
-    else:
-        return redirect('musicvoting:index')
+def vote_track(request):
+    if request.method == "POST":
+        #get voter_id from session or redirect to main page
+        if 'voter_id' in request.session:
+            try:
+                voter = User.objects.get(pk=request.session['voter_id'])
+            except User.DoesNotExist:
+                #In case there is a cookie with a voter_id but not an coresponding entry in the database
+                voter = User()
+                voter.save()
+                request.session['voter_id'] = voter.id
+            request.session.set_expiry(24*60*60)
+        else:
+            return redirect('musicvoting:index')
 
     
 
-    #Get track
-    track = get_object_or_404(Track, pk=pk)
-    try:
-        #If voter already voted for this track
-        track.voting_users.get(pk=voter.id)
-        #return HttpResponse("You already voted.")
-    #Else
-    except User.DoesNotExist:
-        track.voting_users.add(voter)
-        track.votes += 1
-        track.save()
-        #return HttpResponse("You voted. " + track.title + " Votes : " + str(track.votes))
-    #Refresh vote counter when vote button was pressed.
-    return HttpResponse("Votes: " + str(track.votes));
-
-def unvote_track(request, pk):
-    #get voter_id from session or redirect to main page
-    if 'voter_id' in request.session:
+        #Get track
+        track_id = int(request.POST['track_id'])
+        track = get_object_or_404(Track, pk=track_id)
         try:
-            voter = User.objects.get(pk=request.session['voter_id'])
+            #If voter already voted for this track
+            track.voting_users.get(pk=voter.id)
+            #return HttpResponse("You already voted.")
+        #Else
         except User.DoesNotExist:
-            #In case there is a cookie with a voter_id but not an coresponding entry in the database
-            voter = User()
-            voter.save()
-            request.session['voter_id'] = voter.id
-        request.session.set_expiry(24*60*60)
-    else:
-        redirect('musicvoting:index')
+            track.voting_users.add(voter)
+            track.votes += 1
+            track.save()
+            #return HttpResponse("You voted. " + track.title + " Votes : " + str(track.votes))
+        #Refresh vote counter when vote button was pressed.
+        return HttpResponse("Votes: " + str(track.votes))
 
-    track = get_object_or_404(Track, pk=pk)
-    try:
-        #If voter voted for this track
-        track.voting_users.get(pk=voter.id)
-        track.voting_users.remove(voter)
-        track.votes -= 1
-        track.save()
-        #return HttpResponse("You unvoted. "  + track.title + " Votes : " + str(track.votes))
-    except User.DoesNotExist:
-        #If voter never voted for this track in the first place.
-        #return HttpResponse("You never voted for this Track in the first place.")
-        pass
-    #Refresh vote counter when unvote button was pressed.
-    return HttpResponse("Votes: " + str(track.votes));
+    else:
+        return HttpResponse("Use POST")
+def unvote_track(request):
+    if request.method == "POST":
+        #get voter_id from session or redirect to main page
+        if 'voter_id' in request.session:
+            try:
+                voter = User.objects.get(pk=request.session['voter_id'])
+            except User.DoesNotExist:
+                #In case there is a cookie with a voter_id but not an coresponding entry in the database
+                voter = User()
+                voter.save()
+                request.session['voter_id'] = voter.id
+            request.session.set_expiry(24*60*60)
+        else:
+            redirect('musicvoting:index')
+
+        track_id = int(request.POST['track_id'])
+        track = get_object_or_404(Track, pk=track_id)
+        try:
+            #If voter voted for this track
+            track.voting_users.get(pk=voter.id)
+            track.voting_users.remove(voter)
+            track.votes -= 1
+            track.save()
+            #return HttpResponse("You unvoted. "  + track.title + " Votes : " + str(track.votes))
+        except User.DoesNotExist:
+            #If voter never voted for this track in the first place.
+            #return HttpResponse("You never voted for this Track in the first place.")
+            pass
+        #Refresh vote counter when unvote button was pressed.
+        return HttpResponse("Votes: " + str(track.votes))
+    else:
+        return HttpResponse("Use POST")
 
 
 def dbimport(request):

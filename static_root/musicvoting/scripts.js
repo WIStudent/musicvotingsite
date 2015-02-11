@@ -14,13 +14,16 @@ function vote(track_id){
 	votes = track_vote.getElementsByClassName("votes")[0];
 	
 	$.ajax({
-		url: "/vote/" + track_id + "/",	
+		url: "/vote/",	
 		type: "POST",
 		dataType: "html",
+		data: {
+			track_id: track_id,
+		},
 		headers: {
 			"X-CSRFToken": csrftoken,
 		},
-		context:{
+		context: {
 			button: button,
 			votes: votes,
 			spinner: spinner,
@@ -52,9 +55,12 @@ function unvote(track_id){
 	votes = track_vote.getElementsByClassName("votes")[0];
 	
 	$.ajax({
-		url: "/unvote/" + track_id + "/",
+		url: "/unvote/",
 		type: "POST",
 		dataType: "html",
+		data: {
+			track_id: track_id,
+		},
 		headers: {
 			"X-CSRFToken": csrftoken,
 		},

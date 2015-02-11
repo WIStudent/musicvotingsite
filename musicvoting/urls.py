@@ -16,9 +16,9 @@ urlpatterns = patterns('',
                        # ex: /album/2/
                        url(r'^album/(?P<pk>\d+)/$', views.album_detail, name='album_detail'),
                        # ex: /vote/2/
-                       url(r'^vote/(?P<pk>\d+)/$', views.vote_track, name='vote_track'),
+                       url(r'^vote/$', views.vote_track, name='vote_track'),
                        # ex: /unvote/2/
-                       url(r'^unvote/(?P<pk>\d+)/$', views.unvote_track, name='unvote_track'),
+                       url(r'^unvote/$', views.unvote_track, name='unvote_track'),
                        # ex: /pause/
                        url(r'^pause/$', views.pause, name='pause'),
                        # ex: /unpause/
