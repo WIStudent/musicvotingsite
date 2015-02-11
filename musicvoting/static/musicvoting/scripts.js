@@ -7,14 +7,11 @@ var spinner_small_opts = {
 }
 
 function vote(track_id){
-	myAjax = new XMLHttpRequest();
 	
 	spinner = new Spinner();
 	track_vote = document.getElementById("track-" + track_id).getElementsByClassName("track_vote")[0];
 	button = track_vote.getElementsByTagName("input")[0];
 	votes = track_vote.getElementsByClassName("votes")[0];
-	
-	
 	
 	$.ajax({
 		url: "/vote/" + track_id + "/",	
@@ -48,7 +45,6 @@ function vote(track_id){
 }
 
 function unvote(track_id){
-	myAjax = new XMLHttpRequest();
 
 	spinner = new Spinner();
 	track_vote = document.getElementById("track-" + track_id).getElementsByClassName("track_vote")[0];
@@ -84,37 +80,46 @@ function unvote(track_id){
 			this.spinner.stop();
 		},
 	});
-	/*
-	myAjax.onreadystatechange=function(){
-		if(myAjax.readyState==4 && myAjax.status==200){
-			button.onclick = function() { vote(track_id);};
-			button.value = "Vote";				
-			votes.innerHTML = myAjax.responseText;
-			button.style.visibility = "visible";
-			votes.style.visibility = "visible";
-			spinner.stop();
-		}
-		else {
-			spinner.spin();
-			button.style.visibility = "hidden";
-			votes.style.visibility = "hidden";
-			track_vote.appendChild(spinner.el);
-		}
-	}; 
-	myAjax.open("POST", "/unvote/" + track_id + "/", true);
-	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
-	myAjax.send();
-	*/
 }
 
 function pause(){
-	myAjax = new XMLHttpRequest();
+	//myAjax = new XMLHttpRequest();
 	
 	spinner = new Spinner(spinner_small_opts);
 	player_control = document.getElementById("player_control");
 	pause_play_button = document.getElementsByName("pause_play_button")[0];
 	next_button = document.getElementsByName("next_button")[0];
 	
+	$.ajax({
+		url: "/pause/",
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			spinner: spinner,
+			pause_play_button: pause_play_button,
+			next_button: next_button,
+		},
+		beforeSend: function(){
+			spinner.spin();
+			pause_play_button.style.visibility = "hidden";
+			next_button.style.visibility = "hidden";
+			player_control.appendChild(spinner.el);
+		},
+		success: function(html){
+			this.pause_play_button.onclick = unpause;
+			this.pause_play_button.value = "Unpause";
+		},
+		complete: function(xhr, status){
+			this.pause_play_button.style.visibility = "visible";
+			this.next_button.style.visibility = "visible";
+			this.spinner.stop();
+		},
+	});
+	
+	/*
 	myAjax.onreadystatechange=function(){
 		if(myAjax.readyState==4 && myAjax.status==200){	
 			pause_play_button.onclick = unpause;
@@ -133,16 +138,47 @@ function pause(){
 	myAjax.open("POST", "/pause/", true);
 	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
+	*/
 }
 
 function unpause(){
-	myAjax = new XMLHttpRequest();
+	//myAjax = new XMLHttpRequest();
 	
 	spinner = new Spinner(spinner_small_opts);
 	player_control = document.getElementById("player_control");
 	pause_play_button = document.getElementsByName("pause_play_button")[0];
 	next_button = document.getElementsByName("next_button")[0];
-
+	
+	$.ajax({
+		url: "/unpause/",
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			spinner: spinner,
+			pause_play_button: pause_play_button,
+			next_button: next_button,
+		},
+		beforeSend: function(){
+			spinner.spin();
+			pause_play_button.style.visibility = "hidden";
+			next_button.style.visibility = "hidden";
+			player_control.appendChild(spinner.el);
+		},
+		success: function(html){
+			this.pause_play_button.onclick = pause;
+			this.pause_play_button.value = "Pause";
+		},
+		complete: function(hxr, status){
+			this.pause_play_button.style.visibility = "visible";
+			this.next_button.style.visibility = "visible";
+			this.spinner.stop();
+		},
+	});
+		
+	/*
 	myAjax.onreadystatechange=function(){
 		if(myAjax.readyState==4 && myAjax.status==200){
 			pause_play_button.onclick = pause;
@@ -161,16 +197,48 @@ function unpause(){
 	myAjax.open("POST", "/unpause/", true);
 	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
+	*/
 }
 
 function next(){
-	myAjax = new XMLHttpRequest();
+	//myAjax = new XMLHttpRequest();
 	
 	spinner = new Spinner(spinner_small_opts);
 	player_control = document.getElementById("player_control");
 	pause_play_button = document.getElementsByName("pause_play_button")[0];
 	next_button = document.getElementsByName("next_button")[0];
 
+	$.ajax({
+		url: "/next/",
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			spinner: spinner,
+			pause_play_button: pause_play_button,
+			next_button: next_button,
+		},
+		beforeSend: function(){
+			spinner.spin();
+			pause_play_button.style.visibility = "hidden";
+			next_button.style.visibility = "hidden";
+			player_control.appendChild(spinner.el);
+		},
+		success: function(html){
+			document.getElementById("player").outerHTML = html;
+			this.pause_play_button.onclick = pause;
+			this.pause_play_button.value = "Pause";
+		},
+		complete: function(xhr, status){
+			this.pause_play_button.style.visibility = "visible";
+			this.next_button.style.visibility = "visible";
+			this.spinner.stop();
+		},
+	});
+			
+	/*	
 	myAjax.onreadystatechange=function(){
 		if(myAjax.readyState==4 && myAjax.status==200){
 			document.getElementById("player").outerHTML = myAjax.responseText;
@@ -190,6 +258,7 @@ function next(){
 	myAjax.open("POST", "/next/", true);
 	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
+	*/
 }
 
 function getCookie(cname){
