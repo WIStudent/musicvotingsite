@@ -12,27 +12,39 @@ function vote(track_id){
 	spinner = new Spinner();
 	track_vote = document.getElementById("track-" + track_id).getElementsByClassName("track_vote")[0];
 	button = track_vote.getElementsByTagName("input")[0];
-	votes = track_vote.getElementsByClassName("votes")[0];		
-
-	myAjax.onreadystatechange=function(){
-		if(myAjax.readyState==4 && myAjax.status==200){
-			button.onclick = function() { unvote(track_id);};
-			button.value = "Unvote";
-			votes.innerHTML = myAjax.responseText;
-			button.style.visibility = "visible";
-			votes.style.visibility = "visible";
-			spinner.stop();
-		}
-		else {
+	votes = track_vote.getElementsByClassName("votes")[0];
+	
+	
+	
+	$.ajax({
+		url: "/vote/" + track_id + "/",	
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			button: button,
+			votes: votes,
+			spinner: spinner,
+		},
+		beforeSend: function(){
 			spinner.spin();
 			button.style.visibility = "hidden";
 			votes.style.visibility = "hidden";
 			track_vote.appendChild(spinner.el);
-		}
-	}; 
-	myAjax.open("POST", "/vote/" + track_id + "/", true);
-	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
-	myAjax.send();
+		},
+		success: function(html){
+			this.button.onclick = function() { unvote(track_id);};
+			this.button.value = "Unvote";
+			this.votes.innerHTML = html;
+		},
+		complete: function(xhr, status){
+			this.button.style.visibility = "visible";
+			this.votes.style.visibility = "visible";
+			this.spinner.stop();
+		},
+	});
 }
 
 function unvote(track_id){
@@ -43,6 +55,36 @@ function unvote(track_id){
 	button = track_vote.getElementsByTagName("input")[0];
 	votes = track_vote.getElementsByClassName("votes")[0];
 	
+	$.ajax({
+		url: "/unvote/" + track_id + "/",
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			button: button,
+			votes: votes,
+			spinner: spinner,
+		},
+		beforeSend: function(){
+			spinner.spin();
+			button.style.visibility = "hidden";
+			votes.style.visibility = "hidden";
+			track_vote.appendChild(spinner.el);
+		},
+		success: function(html){
+			this.button.onclick = function() { vote(track_id);};
+			this.button.value = "Vote";
+			this.votes.innerHTML = html;
+		},
+		complete: function(xhr, status){
+			this.button.style.visibility = "visible";
+			this.votes.style.visibility = "visible";
+			this.spinner.stop();
+		},
+	});
+	/*
 	myAjax.onreadystatechange=function(){
 		if(myAjax.readyState==4 && myAjax.status==200){
 			button.onclick = function() { vote(track_id);};
@@ -62,6 +104,7 @@ function unvote(track_id){
 	myAjax.open("POST", "/unvote/" + track_id + "/", true);
 	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
 	myAjax.send();
+	*/
 }
 
 function pause(){
