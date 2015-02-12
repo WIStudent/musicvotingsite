@@ -68,7 +68,14 @@ def index(request):
         request.session['voter_id'] = voter.id
         request.session.set_expiry(24*60*60)
     else:
-        voter = User.objects.get(pk=request.session['voter_id'])
+        try:
+            voter = User.objects.get(pk=request.session['voter_id'])
+        except User.DoesNotExist:
+            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            voter = User()
+            voter.save()
+            request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
         cookie = True
         
     #Get current track
