@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
+from django.views.decorators.csrf import ensure_csrf_cookie
 import os, socket
 from mutagen.mp3 import EasyMP3
 from musicvoting.models import Artist, Album, Track, User
@@ -57,6 +58,7 @@ def next_track(request):
     else:
         return HttpResponse('Unautorized', status=401)
 
+@ensure_csrf_cookie
 def index(request):
     #Set cookie
     if 'voter_id' not in request.session:
@@ -116,6 +118,7 @@ def artist(request):
     context = {'artist_list': artist_list}
     return render(request, 'musicvoting/artist.html', context)
 
+@ensure_csrf_cookie
 def artist_detail(request, pk):
     #get voter_id from session or redirect to main page
     if 'voter_id' in request.session:
@@ -145,6 +148,7 @@ def album(request):
     context = {'album_list': album_list}
     return render(request, 'musicvoting/album.html', context)
 
+@ensure_csrf_cookie
 def album_detail(request, pk):
     #get voter_id from session or redirect to main page
     if 'voter_id' in request.session:
