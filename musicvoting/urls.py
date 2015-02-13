@@ -25,4 +25,7 @@ urlpatterns = patterns('',
                        url(r'^unpause/$', views.unpause, name='unpause'),
                        # ex: /next/
                        url(r'^next/$', views.next_track, name='next'),
+                       # ex: /search/
+                       url(r'^search/$', views.search, name='search'),
                        )
+

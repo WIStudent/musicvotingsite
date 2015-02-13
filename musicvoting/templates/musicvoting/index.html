@@ -48,6 +48,14 @@
 			<li id="menu_right"><a href="{% url 'musicvoting:album' %}" id="albums"><div>Albums</div></a></li>
 		</ul>
 	</div>
+		<div id="search">
+		<form action="{% url 'musicvoting:search' %}" method="GET">
+			{% csrf_token %}
+			<input name="search" type="text" />
+			<input type="submit" value="Search" />
+		</form>
+		
+	</div>
 	<div id="track_ranking">
 		<h2>Top most voted tracks</h2>
 		{% if track_ranking %}

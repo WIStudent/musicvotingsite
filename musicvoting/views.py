@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
+from django.db.models import Q
 from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
 import os, socket
@@ -71,7 +72,7 @@ def index(request):
         try:
             voter = User.objects.get(pk=request.session['voter_id'])
         except User.DoesNotExist:
-            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            #In case there is a cookie with a voter_id but not an corresponding entry in the database
             voter = User()
             voter.save()
             request.session['voter_id'] = voter.id
@@ -132,7 +133,7 @@ def artist_detail(request, pk):
         try:
             voter = User.objects.get(pk=request.session['voter_id'])
         except User.DoesNotExist:
-            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            #In case there is a cookie with a voter_id but not an corresponding entry in the database
             voter = User()
             voter.save()
             request.session['voter_id'] = voter.id
@@ -162,7 +163,7 @@ def album_detail(request, pk):
         try:
             voter = User.objects.get(pk=request.session['voter_id'])
         except User.DoesNotExist:
-            #In case there is a cookie with a voter_id but not an coresponding entry in the database
+            #In case there is a cookie with a voter_id but not an corresponding entry in the database
             voter = User()
             voter.save()
             request.session['voter_id'] = voter.id
@@ -180,6 +181,29 @@ def album_detail(request, pk):
         }
     return render(request, 'musicvoting/album_detail.html', context)
 
+def search(request):
+    #get voter_id from session or redirect to main page
+    if 'voter_id' in request.session:
+        try:
+            voter = User.objects.get(pk=request.session['voter_id'])
+        except User.DoesNotExist:
+            #In case there is a cookie with a voter_id but not an corresponding entry in the database
+            voter = User()
+            voter.save()
+            request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
+    else:
+        return redirect('musicvoting:index')
+
+    search_string = request.GET['search']
+    track_list = Track.objects.filter( Q(title__icontains = search_string) | Q(album__album_name__icontains = search_string) | Q(artist__artist_name__icontains = search_string)).order_by('album__album_name', 'track_number')
+    context = {
+        'track_list': track_list,
+        'voter' : voter,
+        'search_string' : search_string,
+    }
+    return render(request, 'musicvoting/search.html', context)
+    
 def vote_track(request):
     if request.method == "POST":
         #get voter_id from session or redirect to main page
@@ -215,6 +239,8 @@ def vote_track(request):
 
     else:
         return HttpResponse("Use POST")
+
+
 def unvote_track(request):
     if request.method == "POST":
         #get voter_id from session or redirect to main page
