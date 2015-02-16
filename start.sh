@@ -2,7 +2,7 @@
 
 # Replace these three settings.
 PROJDIR="/home/pi/Django/musicvotingsite"
-PIDFILE="$PROJDIR/musicvoting.pid"
+PIDFILE="$PROJDIR/django.pid"
 SOCKET="$PROJDIR/musicvoting.sock"
 
 cd $PROJDIR
@@ -11,6 +11,5 @@ if [ -f $PIDFILE ]; then
     rm -f -- $PIDFILE
 fi
 
-exec /usr/bin/env - \
-  PYTHONPATH="../python:.." \
-  ./manage.py runfcgi socket=$SOCKET pidfile=$PIDFILE
+python musicvoting/musicplayer.py &
+python $PROJDIR/manage.py runfcgi method=prefork socket=$SOCKET pidfile=$PIDFILE &
