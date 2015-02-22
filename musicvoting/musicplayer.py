@@ -6,6 +6,25 @@ django.setup()
 from musicvoting.models import Track, User
 from django.db.models import Max
 import musicvoting.mysocket as mysocket
+
+pidfile_path = os.path.join(os.path.dirname(__file__), os.pardir, 'musicplayer.pid')
+if os.access(pidfile_path, os.F_OK):
+    #if pid file ist already there check thef PID number
+    pidfile = open(pidfile_path, "r")
+    pidfile.seek(0)
+    old_pd = pidfile.readline()
+    #check if PID from file matches to the current process PID
+    if os.path.exists("/proc/%s" % old_pd):
+        print "You already have an instance running."
+        print "It is running as process %s" % old_pd
+        sys.exit(1)
+    else:
+        os.remove(pidfile_path)
+
+#write PID in the file
+pidfile = open(pidfile_path, "w")
+pidfile.write("%s" % os.getpid())
+pidfile.close()
                          
 SONG_END = pygame.USEREVENT + 1
 
