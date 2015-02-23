@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
 import os, socket
-from mutagen.mp3 import EasyMP3
+from tinytag import TinyTag
 from musicvoting.models import Artist, Album, Track, User
 import musicvoting.mysocket as mysocket
 # Create your views here.
@@ -289,29 +289,27 @@ def dbimport(request):
         for root, dirs, files in os.walk(music_dir):
             for file in files:
                 if file.endswith('.mp3'):
-                   path = os.path.join(root, file)
-                   mp3 = EasyMP3(path)
-                   mp3info = mp3.tags
-                   mpeginfo = mp3.info
-                   length = int(mpeginfo.length)
-                   title = mp3info['title'][0]
-                   artist = mp3info['artist'][0]
-                   album = mp3info['album'][0]
-                   tracknumber = mp3info['tracknumber'][0]
-                   try:
-                       art = Artist.objects.get(artist_name=artist)
-                   except Artist.DoesNotExist:
-                       art = Artist(artist_name=artist)
-                       art.save()
+                    path = os.path.join(root, file)
+                    tag = TinyTag.get(path)
+                    length = int(tag.duration)
+                    title = tag.title
+                    artist = tag.artist
+                    album = tag.album
+                    tracknumber = int(tag.track.strip('\x00'))
+                    try:
+                        art = Artist.objects.get(artist_name=artist)
+                    except Artist.DoesNotExist:
+                        art = Artist(artist_name=artist)
+                        art.save()
 
-                   try:
-                       alb = Album.objects.get(album_name=album)
-                   except Album.DoesNotExist:
-                       alb = Album(album_name=album)
-                       alb.save()
-
-                   track = Track(artist=art, album=alb, track_number = tracknumber, title = title, lenth = length, path = path)
-                   track.save()
+                    try:
+                        alb = Album.objects.get(album_name=album)
+                    except Album.DoesNotExist:
+                        alb = Album(album_name=album)
+                        alb.save()
+ 
+                    track = Track(artist=art, album=alb, track_number = tracknumber, title = title, lenth = length, path = path)
+                    track.save()
 
         return HttpResponse("DB was updated")
     else:
