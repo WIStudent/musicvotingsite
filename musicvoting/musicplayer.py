@@ -1,6 +1,6 @@
 import os, sys, pygame, django, random, socket
 from thread import start_new_thread
-sys.path.append('/home/pi/Django/musicvotingsite')
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'musicvotingsite.settings'
 django.setup()
 from musicvoting.models import Track, User
