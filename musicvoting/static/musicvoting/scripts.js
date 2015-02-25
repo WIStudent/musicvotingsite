@@ -116,7 +116,7 @@ function pause(){
 		},
 		success: function(html){
 			this.pause_play_button.onclick = unpause;
-			this.pause_play_button.value = "Unpause";
+			this.pause_play_button.innerHTML = "Unpause";
 		},
 		complete: function(xhr, status){
 			this.pause_play_button.style.visibility = "visible";
@@ -175,7 +175,7 @@ function unpause(){
 		},
 		success: function(html){
 			this.pause_play_button.onclick = pause;
-			this.pause_play_button.value = "Pause";
+			this.pause_play_button.innerHTML = "Pause";
 		},
 		complete: function(hxr, status){
 			this.pause_play_button.style.visibility = "visible";
