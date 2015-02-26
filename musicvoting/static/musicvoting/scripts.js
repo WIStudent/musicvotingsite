@@ -89,12 +89,9 @@ function unvote(track_id){
 }
 
 function pause(){
-	//myAjax = new XMLHttpRequest();
 	
-	spinner = new Spinner(spinner_small_opts);
-	player_control = document.getElementById("player_control");
-	pause_play_button = document.getElementsByName("pause_play_button")[0];
-	next_button = document.getElementsByName("next_button")[0];
+	pause_play_button = $('#pause_play_button');
+	next_button = $('#next_button');
 	
 	$.ajax({
 		url: "/pause/",
@@ -104,56 +101,32 @@ function pause(){
 			"X-CSRFToken": csrftoken,
 		},
 		context:{
-			spinner: spinner,
 			pause_play_button: pause_play_button,
 			next_button: next_button,
 		},
 		beforeSend: function(){
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
+			//Show loading
+			pause_play_button.button('loading');
+			next_button.button('loading');
 		},
 		success: function(html){
-			this.pause_play_button.onclick = unpause;
-			this.pause_play_button.innerHTML = "Unpause";
+			this.pause_play_button[0].onclick = unpause;
+			this.pause_play_button.button('unpause');
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			this.pause_play_button.button('pause');
 		},
 		complete: function(xhr, status){
-			this.pause_play_button.style.visibility = "visible";
-			this.next_button.style.visibility = "visible";
-			this.spinner.stop();
+			this.next_button.button('reset');
 		},
 	});
 	
-	/*
-	myAjax.onreadystatechange=function(){
-		if(myAjax.readyState==4 && myAjax.status==200){	
-			pause_play_button.onclick = unpause;
-			pause_play_button.value = "Unpause";
-			pause_play_button.style.visibility = "visible";
-			next_button.style.visibility = "visible";
-			spinner.stop();
-		}
-		else {
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
-		}
-	};
-	myAjax.open("POST", "/pause/", true);
-	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
-	myAjax.send();
-	*/
 }
 
 function unpause(){
-	//myAjax = new XMLHttpRequest();
 	
-	spinner = new Spinner(spinner_small_opts);
-	player_control = document.getElementById("player_control");
-	pause_play_button = document.getElementsByName("pause_play_button")[0];
-	next_button = document.getElementsByName("next_button")[0];
+	pause_play_button = $('#pause_play_button');
+	next_button = $('#next_button');
 	
 	$.ajax({
 		url: "/unpause/",
@@ -163,56 +136,33 @@ function unpause(){
 			"X-CSRFToken": csrftoken,
 		},
 		context:{
-			spinner: spinner,
 			pause_play_button: pause_play_button,
 			next_button: next_button,
 		},
 		beforeSend: function(){
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
+			//Show loading
+			pause_play_button.button('loading');
+			next_button.button('loading');
 		},
 		success: function(html){
-			this.pause_play_button.onclick = pause;
-			this.pause_play_button.innerHTML = "Pause";
+			this.pause_play_button[0].onclick = pause;
+			this.pause_play_button.button('pause');
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			this.pause_play_button.button('unpause');
 		},
 		complete: function(hxr, status){
-			this.pause_play_button.style.visibility = "visible";
-			this.next_button.style.visibility = "visible";
-			this.spinner.stop();
+			this.next_button.button('reset');
 		},
 	});
 		
-	/*
-	myAjax.onreadystatechange=function(){
-		if(myAjax.readyState==4 && myAjax.status==200){
-			pause_play_button.onclick = pause;
-			pause_play_button.value = "Pause";
-			pause_play_button.style.visibility = "visible";
-			next_button.style.visibility = "visible";
-			spinner.stop();
-		}
-		else {
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
-		}
-	};
-	myAjax.open("POST", "/unpause/", true);
-	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
-	myAjax.send();
-	*/
 }
 
 function next(){
-	//myAjax = new XMLHttpRequest();
 	
-	spinner = new Spinner(spinner_small_opts);
-	player_control = document.getElementById("player_control");
-	pause_play_button = document.getElementsByName("pause_play_button")[0];
-	next_button = document.getElementsByName("next_button")[0];
+	pause_play_button = $('#pause_play_button');
+	next_button = $('#next_button');
+	pause_play_button_text = pause_play_button.text();
 
 	$.ajax({
 		url: "/next/",
@@ -222,49 +172,33 @@ function next(){
 			"X-CSRFToken": csrftoken,
 		},
 		context:{
-			spinner: spinner,
 			pause_play_button: pause_play_button,
 			next_button: next_button,
+			pause_play_button_text: pause_play_button_text,
 		},
 		beforeSend: function(){
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
+			//Show loading
+			pause_play_button.button('loading');
+			next_button.button('loading');
 		},
 		success: function(html){
 			document.getElementById("player").outerHTML = html;
-			this.pause_play_button.onclick = pause;
-			this.pause_play_button.value = "Pause";
+			this.pause_play_button[0].onclick = pause;
+			this.pause_play_button.button('pause');
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			if(this.pause_play_button_text == 'Pause'){
+				this.pause_play_button.button('pause');
+			}
+			else if(this.pause_play_button_text == 'Unpause'){
+				this.pause_play_button.button('unpause');
+			}
 		},
 		complete: function(xhr, status){
-			this.pause_play_button.style.visibility = "visible";
-			this.next_button.style.visibility = "visible";
-			this.spinner.stop();
+			this.next_button.button('reset');
 		},
 	});
-			
-	/*	
-	myAjax.onreadystatechange=function(){
-		if(myAjax.readyState==4 && myAjax.status==200){
-			document.getElementById("player").outerHTML = myAjax.responseText;
-			pause_play_button.onclick = pause;
-			pause_play_button.value = "Pause";
-			pause_play_button.style.visibility = "visible";
-			next_button.style.visibility = "visible";
-			spinner.stop();
-		}
-		else {
-			spinner.spin();
-			pause_play_button.style.visibility = "hidden";
-			next_button.style.visibility = "hidden";
-			player_control.appendChild(spinner.el);
-		}
-	};
-	myAjax.open("POST", "/next/", true);
-	myAjax.setRequestHeader("X-CSRFToken", csrftoken);
-	myAjax.send();
-	*/
+
 }
 
 function getCookie(cname){
