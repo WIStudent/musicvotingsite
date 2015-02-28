@@ -1,25 +1,69 @@
 {% load staticfiles %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" />
-<meta name="viewport" content="width=device-width">
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<!-- <link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style.css' %}" /> -->
+		<link rel="stylesheet" type="text/css" href="{% static 'musicvoting/style-bootstrap.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'musicvoting/bootstrap-3.3.2-dist/css/bootstrap.min.css' %}">
+		<script src="{% static 'musicvoting/jquery_2.1.3/jquery-2.1.3.min.js' %}" type="text/javascript"></script>
+		<script src="{% static 'musicvoting/bootstrap-3.3.2-dist/js/bootstrap.min.js' %}" type="text/javascript"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Musicvoting - Artists</title>
+	</head>
+	<body>
 
-<div class="content">
-	
-	<div id="breadcrumb">
-		<ul>
-			<li><a href="{% url 'musicvoting:index' %}">Home</a></li>
-			<li>Artists</li>
-		</ul>
-	</div>
-	<div class="album_artist_list">
-		{% if artist_list %}
-			<ul>
-			{% for artist in artist_list %}
-				<li><a href="{% url 'musicvoting:artist_detail' artist.id %}">{{ artist.artist_name }}</a></li>
-			{% endfor %}
-			</ul>
-		{% else %}
+		<div class="container">
+			<header>
+				<nav id="navbar" class="navbar navbar-default">
+					<div class="container-fluid">
+						<!-- Brand and toggle get grouped for better mobile display -->
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1">
+								<span class="sr-only">Toggle navigation</span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+							</button>
+							<a class="navbar-brand" href="/">Musicvoting</a>
+						</div>
+						
+						<!-- Collect the nav links, forms, and other content for toggling -->
+						<div class="collapse navbar-collapse" id="navbar-collapse-1">
+							<ul class="nav navbar-nav">
+								<li><a href="/artist/">Artists</a></li>
+								<li><a href="/album/">Albums</a></li>
+							</ul>
+							<!-- Search-->					
+							<form class="navbar-form" role="search" action="{% url 'musicvoting:search' %}" method="GET">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="Search" name="search">
+									<div class="input-group-btn">
+										<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+									</div>
+								</div>
+							</form><!-- /Search -->
+						</div><!-- /.navbar-collapse -->
+					</div>
+				</nav>
+				
+				<ol class="breadcrumb">
+					<li><a href="{% url 'musicvoting:index' %}">Home</a></li>
+					<li class="active">Artists</li>
+				</ol>
+			</header>
+
+			{% if artist_list %}
+			<div class="list-group">
+				{% for artist in artist_list %}
+				<a href="{% url 'musicvoting:artist_detail' artist.id %}" class="list-group-item">{{ artist.artist_name }}</a>
+				{% endfor %}
+			</div>
+			{% else %}
 			<p>No artist are available.</p>
-		{% endif %}
-	</div>
-</div>
+			{% endif %}
+		</div>
+	</body>
+</html>

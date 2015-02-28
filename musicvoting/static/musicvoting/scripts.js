@@ -8,10 +8,8 @@ var spinner_small_opts = {
 
 function vote(track_id){
 	
-	spinner = new Spinner();
-	track_vote = document.getElementById("track-" + track_id).getElementsByClassName("track_vote")[0];
-	button = track_vote.getElementsByTagName("input")[0];
-	votes = track_vote.getElementsByClassName("votes")[0];
+	button = $('#vote_unvote_button-' + track_id);
+	votes = $('#votes-' + track_id);
 	
 	$.ajax({
 		url: "/vote/",	
@@ -26,33 +24,25 @@ function vote(track_id){
 		context: {
 			button: button,
 			votes: votes,
-			spinner: spinner,
 		},
 		beforeSend: function(){
-			spinner.spin();
-			button.style.visibility = "hidden";
-			votes.style.visibility = "hidden";
-			track_vote.appendChild(spinner.el);
+			button.button('loading');
 		},
 		success: function(html){
-			this.button.onclick = function() { unvote(track_id);};
-			this.button.value = "Unvote";
-			this.votes.innerHTML = html;
+			this.button[0].onclick = function() { unvote(track_id);};
+			this.button.button('unvote');
+			this.votes.html(html);
 		},
-		complete: function(xhr, status){
-			this.button.style.visibility = "visible";
-			this.votes.style.visibility = "visible";
-			this.spinner.stop();
+		error: function (xhr, ajaxOptions, thrownError) {
+			this.button.button('vote');
 		},
 	});
 }
 
 function unvote(track_id){
 
-	spinner = new Spinner();
-	track_vote = document.getElementById("track-" + track_id).getElementsByClassName("track_vote")[0];
-	button = track_vote.getElementsByTagName("input")[0];
-	votes = track_vote.getElementsByClassName("votes")[0];
+	button = $('#vote_unvote_button-' + track_id);
+	votes = $('#votes-' + track_id);
 	
 	$.ajax({
 		url: "/unvote/",
@@ -67,23 +57,17 @@ function unvote(track_id){
 		context:{
 			button: button,
 			votes: votes,
-			spinner: spinner,
 		},
 		beforeSend: function(){
-			spinner.spin();
-			button.style.visibility = "hidden";
-			votes.style.visibility = "hidden";
-			track_vote.appendChild(spinner.el);
+			button.button('loading')
 		},
 		success: function(html){
-			this.button.onclick = function() { vote(track_id);};
-			this.button.value = "Vote";
-			this.votes.innerHTML = html;
+			this.button[0].onclick = function() { vote(track_id);};
+			this.button.button('vote');
+			this.votes.html(html);
 		},
-		complete: function(xhr, status){
-			this.button.style.visibility = "visible";
-			this.votes.style.visibility = "visible";
-			this.spinner.stop();
+		error: function (xhr, ajaxOptions, thrownError) {
+			this.button.button('unvote');
 		},
 	});
 }

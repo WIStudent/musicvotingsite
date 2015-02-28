@@ -12,6 +12,8 @@
 		<script src="{% static 'musicvoting/scripts.js' %}" type="text/javascript"></script>
 		<script src="{% static 'musicvoting/spin.js_2.0.1/spin.min.js' %}" type="text/javascript"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Musicvoting</title>
 	</head>
 	<body>
 
@@ -90,36 +92,35 @@
 			</div>
 			{% endif %}
 		
-			<div id="track_ranking">
-				<h3>Top most voted tracks</h3>
-				{% if track_ranking %}
-				<ul class="track_list list-group">
-					{% for track in track_ranking %}
-					<li id="track-{{ track.id }}" class="track list-group-item">
-						<div class="track_info">
-							<div>{{ track.title }}</div>
-							<div>Artist: <a href="{% url 'musicvoting:artist_detail' track.artist.id %}">{{ track.artist.artist_name }}</a></div>
-							<div>Album: <a href="{% url 'musicvoting:album_detail' track.album.id %}">{{ track.album.album_name }}</a></div>
+		
+			<h3>Top most voted tracks</h3>
+			{% if track_ranking %}
+			<ul class="list-group">
+				{% for track in track_ranking %}
+				<li class="list-group-item track-item">
+					<div class="track_vote">					
+						<div>
+							{% if voter in track.voting_users.all %}
+							<button id="vote_unvote_button-{{ track.id }}" type="button" data-loading-text="Loading..." data-vote-text="Vote" data-unvote-text="Unvote" class="btn btn-primary" onClick="unvote({{ track.id }})">Unvote</button>
+							{% else %}
+							<button id="vote_unvote_button-{{ track.id }}" type="button" data-loading-text="Loading..." data-vote-text="Vote" data-unvote-text="Unvote" class="btn btn-primary" onClick="vote({{ track.id }})">Vote</button>
+							{% endif %}
 						</div>
-						<div class="track_vote">					
-							<div>
-								{% if voter in track.voting_users.all %}
-								<button type="button" class="btn btn-primary" onClick="unvote({{ track.id }})">Unvote</button>
-								{% else %}
-								<button type="button" class="btn btn-primary" onClick="vote({{ track.id }})">Vote</button>
-								{% endif %}
-							</div>
-							<div class="votes">
+						<div id="votes-{{ track.id }}" class="votes">
 							Votes: {{ track.votes }}
-							</div>
 						</div>
-						</li>
-					{% endfor %}
-				<ul>
-				{% else %}
-				<p>No track was voted. DJ Shuffle decides which track will be played next.</p>
-				{% endif %}
-			</div>
+					</div>
+					<div class="track_info">
+						<div>{{ track.title }}</div>
+						<div>Artist: <a href="{% url 'musicvoting:artist_detail' track.artist.id %}">{{ track.artist.artist_name }}</a></div>
+						<div>Album: <a href="{% url 'musicvoting:album_detail' track.album.id %}">{{ track.album.album_name }}</a></div>
+					</div>
+				</li>
+				{% endfor %}
+			<ul>
+			{% else %}
+			<p>No track was voted. DJ Shuffle decides which track will be played next.</p>
+			{% endif %}
 		</div>
 
 	</body>

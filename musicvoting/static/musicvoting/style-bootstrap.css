@@ -1,3 +1,16 @@
 #navbar {
 	margin-bottom: 0;
-} 
+}
+
+.track-item {
+	overflow: hidden;
+}
+
+.track_vote {
+	float: right;
+	text-align: right;
+}
+
+.track_info {
+	overflow: hidden;
+}
