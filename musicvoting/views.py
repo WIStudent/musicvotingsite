@@ -78,30 +78,35 @@ def index(request):
             request.session['voter_id'] = voter.id
         request.session.set_expiry(24*60*60)
         cookie = True
-        
-    #Get current track
-    sock = mysocket.Mysocket()
-    sock.connect(mysocket.ADDR, mysocket.PORT)
-    sock.mysend(format(4, '07'))
-    answer = sock.myreceive()
-    sock.close()
+    try:    
+        #Get current track
+        sock = mysocket.Mysocket()
+        sock.connect(mysocket.ADDR, mysocket.PORT)
+        sock.mysend(format(4, '07'))
+        answer = sock.myreceive()
+        sock.close()
     
-    current_track = Track.objects.get(pk=int(answer))
+        current_track = Track.objects.get(pk=int(answer))
 
-    #Get current playing status
-    sock = mysocket.Mysocket()
-    sock.connect(mysocket.ADDR, mysocket.PORT)
-    sock.mysend(format(5, '07'))
-    answer = sock.myreceive()
-    sock.close()
+        #Get current playing status
+        sock = mysocket.Mysocket()
+        sock.connect(mysocket.ADDR, mysocket.PORT)
+        sock.mysend(format(5, '07'))
+        answer = sock.myreceive()
+        sock.close()
 
-    if answer == format(1, '07'):
-        playing = True
-    elif answer == format(0, '07'):
-        playing = False
-    else:
-        playing = 'Error'
-        
+        if answer == format(1, '07'):
+            playing = True
+        elif answer == format(0, '07'):
+            playing = False
+        else:
+            playing = 'Error'
+        player_running = True
+    except socket.error:
+        current_track = None
+        playing = None
+        player_running = False
+
     #Get tracks ranked by votes
     track_ranking = Track.objects.filter(votes__gt=0).order_by('-votes')
 
@@ -115,6 +120,7 @@ def index(request):
         'voter': voter,
         'playing': playing,
         'admin': admin,
+        'player_running': player_running,
         }
     response = render(request, 'musicvoting/index.html', context)
     if cookie == False:

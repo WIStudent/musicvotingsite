@@ -70,9 +70,9 @@
 				//-->
 			</script>
 			{% endif %} 
-			
 
-				
+			{% if player_running %}
+			
 			{% include "musicvoting/player.html" %}
 		
 			{% if admin %}
@@ -84,8 +84,11 @@
 				{% endif %}
 				<a class="btn btn-primary" id="next_button" data-loading-text="Loading..." onClick="next()">Next</a>
 			</div>
-			{% endif %}
-		
+			{% endif %}<!-- if admin -->
+			
+			{% else %}
+			<div class="alert alert-danger">Alert: Player is not running!</div>
+			{% endif %}<!-- if player_running -->
 		
 			<h3>Top most voted tracks</h3>
 			{% if track_ranking %}
