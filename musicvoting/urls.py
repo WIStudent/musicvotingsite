@@ -29,5 +29,7 @@ urlpatterns = patterns('',
                        url(r'^search/$', views.search, name='search'),
                        # ex: /login/
                        url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'musicvoting/login.html'}, name='login'),
+                       # ex: /logout/
+                       url(r'^logout/$', 'django.contrib.auth.views.logout', name='logout'),
                        )
 
