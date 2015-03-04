@@ -6,6 +6,8 @@ django.setup()
 from musicvoting.models import Track, User
 from django.db.models import Max
 import musicvoting.mysocket as mysocket
+#Make it runnable even if no display is attached.
+os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 pidfile_path = os.path.join(os.path.dirname(__file__), os.pardir, 'musicplayer.pid')
 if os.access(pidfile_path, os.F_OK):
