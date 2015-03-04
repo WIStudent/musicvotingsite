@@ -185,6 +185,21 @@ function next(){
 
 }
 
+function shutdown(){
+	
+	$.ajax({
+		url: "/shutdown/",
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		beforeSend: function(){
+			$('#modal-shutdown-label')[0].innerHTML = "Trying to shut down the device." ;
+		},
+	});
+}
+
 function getCookie(cname){
 	var name = cname + "=";
 	var ca = document.cookie.split(';');

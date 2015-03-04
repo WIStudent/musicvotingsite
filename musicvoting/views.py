@@ -320,3 +320,18 @@ def dbimport(request):
         return HttpResponse("DB was updated")
     else:
         return HttpResponse('Unauthorized', status=401)
+
+
+def shutdown(request):
+    permission = request.user.is_superuser
+    if request.method == 'POST':
+        if permission == True:
+            #shut device down
+            command = "/usr/bin/sudo /sbin/shutdown -h now"
+            import subprocess
+            process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+            output = process.communicate()[0]
+            return HttpResponse("Shutting down now.\n" + output)
+        else:
+            return HttpResponse('Unauthorized', status=401)
+

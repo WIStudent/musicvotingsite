@@ -31,5 +31,7 @@ urlpatterns = patterns('',
                        url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'musicvoting/login.html'}, name='login'),
                        # ex: /logout/
                        url(r'^logout/$', 'django.contrib.auth.views.logout', name='logout'),
+                       # ex: /shutdown/
+                       url(r'^shutdown/$', views.shutdown, name='shutdown'),
                        )
 
