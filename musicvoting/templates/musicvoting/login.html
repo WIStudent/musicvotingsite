@@ -11,7 +11,7 @@
 		<script src="{% static 'musicvoting/bootstrap-3.3.2-dist/js/bootstrap.min.js' %}" type="text/javascript"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		
-		<title>Musicvoting - Albums</title>
+		<title>Musicvoting - Login</title>
 	</head>
 	<body>
 
@@ -54,20 +54,27 @@
 				
 				<ol class="breadcrumb">
 					<li><a href="{% url 'musicvoting:index' %}">Home</a></li>
-					<li class="active">Albums</li>
+					<li class="active">Login</li>
 				</ol>
 			</header>
-	
-			{% if album_list %}
-			<div class="list-group">
-				{% for album in album_list %}
-				<a href="{% url 'musicvoting:album_detail' album.id %}" class="list-group-item">{{ album.album_name }}</a>
-			{% endfor %}
-			</div>
-			{% else %}
-			<p>No album are available.</p>
+			{% if form.errors %}
+			<div class="alert alert-warning">Your username and password didn't match. Please try again.</div>
 			{% endif %}
+			<form role="form" method="post" action="{% url 'musicvoting:login' %}">
+				{% csrf_token %}
+				<input type="hidden" name="next" value="{{ next }}" />
+				<div class="form-group">
+					<label for="id_{{ form.username.name }}">User name:</label>
+					<input type="text" class="form-control" id="id_{{ form.username.name }}" name="{{ form.username.name }}">
+				</div>
+				<div class="form-group">
+					<label for="id_{{ form.password.name }}">Password:</label>
+					<input type="password" class="form-control" id="id_{{ form.password.name }}" name="{{ form.password.name }}">
+				</div>
+				<button type="submit" class="btn btn-default">Login</button>
+			</form>
 		</div>
 	</body>
 </html>
-
+			
+			

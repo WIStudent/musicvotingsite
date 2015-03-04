@@ -39,7 +39,7 @@
 								<li><a href="/album/">Albums</a></li>
 							</ul>
 							<!-- Search-->					
-							<form class="navbar-form" role="search" action="{% url 'musicvoting:search' %}" method="GET">
+							<form class="navbar-form navbar-left" role="search" action="{% url 'musicvoting:search' %}" method="GET">
 								<div class="input-group">
 									<input type="text" class="form-control" placeholder="Search" name="search">
 									<div class="input-group-btn">
@@ -47,6 +47,9 @@
 									</div>
 								</div>
 							</form><!-- /Search -->
+							<ul class="nav navbar-nav navbar-right">
+								<li><a href="/login?next=/">Login</a></li>
+							</ul>
 						</div><!-- /.navbar-collapse -->
 					</div>
 				</nav>
