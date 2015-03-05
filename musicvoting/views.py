@@ -291,17 +291,30 @@ def dbimport(request):
         User.objects.all().delete()
         Artist.objects.all().delete()
         Album.objects.all().delete()
-        
+		
+        import re
         for root, dirs, files in os.walk(music_dir):
             for file in files:
                 if file.endswith('.mp3'):
                     path = os.path.join(root, file)
                     tag = TinyTag.get(path)
                     length = int(tag.duration)
-                    title = tag.title
-                    artist = tag.artist
-                    album = tag.album
-                    tracknumber = int(tag.track.strip('\x00'))
+                    if tag.title is not None:
+                        title = tag.title
+                    else:
+                        title = file.rstrip('.mp3')
+                    if tag.artist is not None:
+                        artist = tag.artist
+                    else:
+                        artist = 'Unknown artist'
+                    if tag.album is not None:
+                        album = tag.album
+                    else:
+                        album = 'Unknown album'
+                    try:
+                        tracknumber = int(re.sub("[^0-9]", "", tag.track))
+                    except:
+                        tracknumber = 0
                     try:
                         art = Artist.objects.get(artist_name=artist)
                     except Artist.DoesNotExist:
