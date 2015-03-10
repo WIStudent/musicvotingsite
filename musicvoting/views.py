@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
-import os, socket
-from tinytag import TinyTag
+import os, socket, sys, time
 from musicvoting.models import Artist, Album, Track, User
 import musicvoting.mysocket as mysocket
+from subprocess import Popen
 # Create your views here.
 
 def pause(request):
@@ -282,57 +283,66 @@ def unvote_track(request):
 
 
 def dbimport(request):
-    permission = request.user.is_superuser
-    if permission == True:
-        music_dir = getattr(settings, 'MUSICVOTING_MUSIC_DIR')
-
-        #Delete all db entries
-        Track.objects.all().delete()
-        User.objects.all().delete()
-        Artist.objects.all().delete()
-        Album.objects.all().delete()
-		
-        import re
-        for root, dirs, files in os.walk(music_dir):
-            for file in files:
-                if file.endswith('.mp3'):
-                    path = os.path.join(root, file)
-                    tag = TinyTag.get(path)
-                    length = int(tag.duration)
-                    if tag.title is not None:
-                        title = tag.title
-                    else:
-                        title = file.rstrip('.mp3')
-                    if tag.artist is not None:
-                        artist = tag.artist
-                    else:
-                        artist = 'Unknown artist'
-                    if tag.album is not None:
-                        album = tag.album
-                    else:
-                        album = 'Unknown album'
-                    try:
-                        tracknumber = int(re.sub("[^0-9]", "", tag.track))
-                    except:
-                        tracknumber = 0
-                    try:
-                        art = Artist.objects.get(artist_name=artist)
-                    except Artist.DoesNotExist:
-                        art = Artist(artist_name=artist)
-                        art.save()
-
-                    try:
-                        alb = Album.objects.get(album_name=album)
-                    except Album.DoesNotExist:
-                        alb = Album(album_name=album)
-                        alb.save()
- 
-                    track = Track(artist=art, album=alb, track_number = tracknumber, title = title, lenth = length, path = path)
-                    track.save()
-
-        return HttpResponse("DB was updated")
+    #Check, if import is already running
+    pidfile_path = os.path.join(os.path.dirname(__file__), os.pardir, 'musicimport.pid')
+    if os.access(pidfile_path, os.F_OK):
+        #if pid file ist already there check thef PID number
+        pidfile = open(pidfile_path, "r")
+        pidfile.seek(0)
+        old_pd = pidfile.readline()
+        #check if PID from file matches to the current process PID
+        if os.path.exists("/proc/%s" % old_pd):
+            import_running = True
+        else:
+            os.remove(pidfile_path)
+            import_running = False
     else:
-        return HttpResponse('Unauthorized', status=401)
+        import_running = False
+
+    if request.method == 'GET':
+        if request.user.is_authenticated():
+            if request.user.is_superuser:
+                context = {
+                    'import_running': import_running,
+                }
+                return render(request, 'musicvoting/import.html', context)
+            else:
+                return HttpResponse('Unauthorized', status=401)
+        else:
+            return redirect(reverse('musicvoting:login') + '?next=' + reverse('musicvoting:dbimport'))
+
+    elif request.method == 'POST':
+        if request.user.is_superuser:
+            if not import_running:
+                Popen(['python', os.path.join(os.path.dirname(__file__), 'musicimport.py')])
+                while not os.access(pidfile_path, os.F_OK):
+                    time.sleep(1)
+            return redirect('musicvoting:dbimport')
+
+        else:
+            return HttpResponse('Unauthorized', status=401)
+
+def dbimport_status(request):
+    try:
+        sock = mysocket.Mysocket()
+        sock.connect('127.0.0.1', 10000)
+        sock.mysend(format(1, '07'))
+        number_of_files = int(sock.myreceive())
+        sock.close()
+
+        sock = mysocket.Mysocket()
+        sock.connect('127.0.0.1', 10000)
+        sock.mysend(format(2, '07'))
+        number_processed = int(sock.myreceive())
+    except:
+        number_of_files = -3
+        number_processed = 0
+
+    response = {
+        'number_of_files': number_of_files,
+        'number_processed': number_processed,
+    }
+    return JsonResponse(response)
 
 
 def shutdown(request):

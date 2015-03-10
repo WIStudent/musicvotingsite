@@ -200,6 +200,36 @@ function shutdown(){
 	});
 }
 
+function import_progress(){
+	$.ajax({
+		url: "/importstatus/",
+		type: "GET",
+		dataType: "json",
+		success: function(json){
+			var progress;
+			var progress_text;
+			if(json.number_of_files != -3){
+				if(json.number_of_files == -1 || json.number_processed == 0){
+					progress = 0;
+					progress_text = "Counting tracks"
+				}
+				else if(json.number_of_files == -2){
+					progress = 100;
+					progress_text = "Finished. " + json.number_processed + " tracks imported.";
+				}
+				else{
+					progress = Math.round(json.number_processed / json.number_of_files * 100);
+					progress_text = json.number_processed + "/" + json.number_of_files + " tracks";
+				}
+				var progressbar = $('.progress-bar');
+				progressbar.css('width', progress+'%').attr('aria-valuenow', progress);
+				progressbar[0].innerHTML = progress_text;
+				setTimeout(import_progress, 2000);
+			}
+		},
+	});
+}
+
 function getCookie(cname){
 	var name = cname + "=";
 	var ca = document.cookie.split(';');

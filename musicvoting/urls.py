@@ -7,6 +7,8 @@ urlpatterns = patterns('',
                        url(r'^$', views.index, name='index'),
                        # ex: /dbimport/
                        url(r'^dbimport/$', views.dbimport, name='dbimport'),
+                       # ex: /importstatus/
+                       url(r'^importstatus/$', views.dbimport_status, name='dbimport_status'),
                        # ex: /artist/
                        url(r'^artist/$', views.artist, name='artist'),
                        # ex: /artist/2
