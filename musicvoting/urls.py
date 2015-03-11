@@ -35,5 +35,7 @@ urlpatterns = patterns('',
                        url(r'^logout/$', 'django.contrib.auth.views.logout', name='logout'),
                        # ex: /shutdown/
                        url(r'^shutdown/$', views.shutdown, name='shutdown'),
+                       # ex: /activevotes/
+                       url(r'^activevotes/$', views.active_votes, name='active_votes'),
                        )
 

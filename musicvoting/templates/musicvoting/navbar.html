@@ -16,6 +16,7 @@
 			<ul class="nav navbar-nav">
 				<li><a href="{% url 'musicvoting:artist' %}">Artists</a></li>
 				<li><a href="{% url 'musicvoting:album' %}">Albums</a></li>
+				<li><a href="{% url 'musicvoting:active_votes' %}">Your active votes</a></li>
 			</ul>
 			<!-- Search-->
 			<form class="navbar-form navbar-left" role="search" action="{% url 'musicvoting:search' %}" method="GET">

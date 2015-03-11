@@ -211,6 +211,28 @@ def search(request):
     }
     return render(request, 'musicvoting/search.html', context)
     
+
+def active_votes(request):
+    #get voter_id from session or redirect to main page
+    if 'voter_id' in request.session:
+        try:
+            voter = User.objects.get(pk=request.session['voter_id'])
+        except User.DoesNotExist:
+            #In case there is a cookie with a voter_id but not an corresponding entry in the database
+            voter = User()
+            voter.save()
+            request.session['voter_id'] = voter.id
+        request.session.set_expiry(24*60*60)
+    else:
+        return redirect('musicvoting:index')
+
+    track_list = voter.track_set.all()
+    context = {
+        'track_list': track_list,
+    }
+    return render(request, 'musicvoting/active_votes.html', context)
+
+
 def vote_track(request):
     if request.method == "POST":
         #get voter_id from session or redirect to main page
