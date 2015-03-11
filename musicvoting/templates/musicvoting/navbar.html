@@ -41,9 +41,9 @@
 
 				
 				{% if user.is_authenticated %}
-				<li><a href="{% url 'musicvoting:logout' %}?next=/">Logout</a></li>
+				<li><a href="{% url 'musicvoting:logout' %}?next={% url 'musicvoting:index' %}">Logout</a></li>
 				{% else %}
-				<li><a href="{% url 'musicvoting:login' %}?next=/">Login</a></li>
+				<li><a href="{% url 'musicvoting:login' %}?next={% url 'musicvoting:index' %}">Login</a></li>
 				{% endif %}
 			</ul>
 		</div><!-- /.navbar-collapse -->

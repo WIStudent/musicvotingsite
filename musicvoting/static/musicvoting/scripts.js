@@ -12,7 +12,7 @@ function vote(track_id){
 	votes = $('#votes-' + track_id);
 	
 	$.ajax({
-		url: "/vote/",	
+		url: urls["vote"],	
 		type: "POST",
 		dataType: "html",
 		data: {
@@ -45,7 +45,7 @@ function unvote(track_id){
 	votes = $('#votes-' + track_id);
 	
 	$.ajax({
-		url: "/unvote/",
+		url: urls["unvote"],
 		type: "POST",
 		dataType: "html",
 		data: {
@@ -78,7 +78,7 @@ function pause(){
 	next_button = $('#next_button');
 	
 	$.ajax({
-		url: "/pause/",
+		url: urls["pause"],
 		type: "POST",
 		dataType: "html",
 		headers: {
@@ -113,7 +113,7 @@ function unpause(){
 	next_button = $('#next_button');
 	
 	$.ajax({
-		url: "/unpause/",
+		url: urls["unpause"],
 		type: "POST",
 		dataType: "html",
 		headers: {
@@ -149,7 +149,7 @@ function next(){
 	pause_play_button_text = pause_play_button.text();
 
 	$.ajax({
-		url: "/next/",
+		url: urls["next"],
 		type: "POST",
 		dataType: "html",
 		headers: {
@@ -188,7 +188,7 @@ function next(){
 function shutdown(){
 	
 	$.ajax({
-		url: "/shutdown/",
+		url: urls["shutdown"],
 		type: "POST",
 		dataType: "html",
 		headers: {
@@ -202,7 +202,7 @@ function shutdown(){
 
 function import_progress(){
 	$.ajax({
-		url: "/importstatus/",
+		url: urls["importstatus"],
 		type: "GET",
 		dataType: "json",
 		success: function(json){

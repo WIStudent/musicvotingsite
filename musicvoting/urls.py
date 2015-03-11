@@ -6,7 +6,7 @@ urlpatterns = patterns('',
                        # ex: /
                        url(r'^$', views.index, name='index'),
                        # ex: /dbimport/
-                       url(r'^dbimport/$', views.dbimport, name='dbimport'),
+                       url(r'^import/$', views.dbimport, name='dbimport'),
                        # ex: /importstatus/
                        url(r'^importstatus/$', views.dbimport_status, name='dbimport_status'),
                        # ex: /artist/
