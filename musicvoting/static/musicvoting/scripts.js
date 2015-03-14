@@ -76,6 +76,7 @@ function pause(){
 	
 	pause_play_button = $('#pause_play_button');
 	next_button = $('#next_button');
+	vote_unvote_next_button = $('#vote_unvote_next_button');
 	
 	$.ajax({
 		url: urls["pause"],
@@ -87,11 +88,13 @@ function pause(){
 		context:{
 			pause_play_button: pause_play_button,
 			next_button: next_button,
+			vote_unvote_next_button: vote_unvote_next_button,
 		},
 		beforeSend: function(){
 			//Show loading
 			pause_play_button.button('loading');
 			next_button.button('loading');
+			vote_unvote_next_button.button('loading');
 		},
 		success: function(html){
 			this.pause_play_button[0].onclick = unpause;
@@ -102,6 +105,7 @@ function pause(){
 		},
 		complete: function(xhr, status){
 			this.next_button.button('reset');
+			this.vote_unvote_next_button.button('reset');
 		},
 	});
 	
@@ -111,6 +115,7 @@ function unpause(){
 	
 	pause_play_button = $('#pause_play_button');
 	next_button = $('#next_button');
+	vote_unvote_next_button = $('#vote_unvote_next_button');
 	
 	$.ajax({
 		url: urls["unpause"],
@@ -122,11 +127,13 @@ function unpause(){
 		context:{
 			pause_play_button: pause_play_button,
 			next_button: next_button,
+			vote_unvote_next_button: vote_unvote_next_button,
 		},
 		beforeSend: function(){
 			//Show loading
 			pause_play_button.button('loading');
 			next_button.button('loading');
+			vote_unvote_next_button.button('loading');
 		},
 		success: function(html){
 			this.pause_play_button[0].onclick = pause;
@@ -137,6 +144,7 @@ function unpause(){
 		},
 		complete: function(hxr, status){
 			this.next_button.button('reset');
+			this.vote_unvote_next_button.button('reset');
 		},
 	});
 		
@@ -146,6 +154,7 @@ function next(){
 	
 	pause_play_button = $('#pause_play_button');
 	next_button = $('#next_button');
+	vote_unvote_next_button = $('#vote_unvote_next_button');
 	pause_play_button_text = pause_play_button.text();
 
 	$.ajax({
@@ -159,27 +168,26 @@ function next(){
 			pause_play_button: pause_play_button,
 			next_button: next_button,
 			pause_play_button_text: pause_play_button_text,
+			vote_unvote_next_button: vote_unvote_next_button,
 		},
 		beforeSend: function(){
 			//Show loading
 			pause_play_button.button('loading');
 			next_button.button('loading');
+			vote_unvote_next_button.button('loading');
 		},
 		success: function(html){
-			document.getElementById("player").outerHTML = html;
-			this.pause_play_button[0].onclick = pause;
-			this.pause_play_button.button('pause');
+			window.location = urls["index"];
 		},
 		error: function (xhr, ajaxOptions, thrownError) {
+			this.next_button.button('reset');
+			this.vote_unvote_next_button.button('reset');
 			if(this.pause_play_button_text == 'Pause'){
 				this.pause_play_button.button('pause');
 			}
 			else if(this.pause_play_button_text == 'Unpause'){
 				this.pause_play_button.button('unpause');
 			}
-		},
-		complete: function(xhr, status){
-			this.next_button.button('reset');
 		},
 	});
 
@@ -225,6 +233,48 @@ function import_progress(){
 				progressbar.css('width', progress+'%').attr('aria-valuenow', progress);
 				progressbar[0].innerHTML = progress_text;
 				setTimeout(import_progress, 2000);
+			}
+		},
+	});
+}
+
+function vote_unvote_next(){
+	
+	pause_play_button = $('#pause_play_button');
+	next_button = $('#next_button');
+	vote_unvote_next_button = $('#vote_unvote_next_button');
+	pause_play_button_text = pause_play_button.text();
+	
+	$.ajax({
+		url: urls["vote_unvote_next"],
+		type: "POST",
+		dataType: "html",
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		context:{
+			pause_play_button: pause_play_button,
+			next_button: next_button,
+			vote_unvote_next_button: vote_unvote_next_button,
+			pause_play_button_text: pause_play_button_text,
+		},
+		beforeSend: function(){
+			//Show loading
+			pause_play_button.button('loading');
+			next_button.button('loading');
+			vote_unvote_next_button.button('loading');
+		},
+		success: function(html){
+			window.location = urls["index"];
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			this.next_button.button('reset');
+			this.vote_unvote_next_button.button('reset');
+			if(this.pause_play_button_text == 'Pause'){
+				this.pause_play_button.button('pause');
+			}
+			else if(this.pause_play_button_text == 'Unpause'){
+				this.pause_play_button.button('unpause');
 			}
 		},
 	});

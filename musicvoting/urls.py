@@ -37,5 +37,7 @@ urlpatterns = patterns('',
                        url(r'^shutdown/$', views.shutdown, name='shutdown'),
                        # ex: /activevotes/
                        url(r'^activevotes/$', views.active_votes, name='active_votes'),
+                       # ex: /votenext/
+                       url(r'^votenext/$', views.vote_unvote_next, name='vote_unvote_next'),
                        )
 

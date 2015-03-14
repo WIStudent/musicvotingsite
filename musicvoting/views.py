@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseServerError
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 import os, socket, sys, time
-from musicvoting.models import Artist, Album, Track, User
+from musicvoting.models import Artist, Album, Track, User, Player
 import musicvoting.mysocket as mysocket
 from subprocess import Popen
 # Create your views here.
@@ -55,7 +56,8 @@ def next_track(request):
         context = {
             'current_track': current_track,
             }
-        return render(request, 'musicvoting/player.html', context)
+        #return render(request, 'musicvoting/player.html', context)
+        return HttpResponse()
         
     else:
         return HttpResponse('Unautorized', status=401)
@@ -79,49 +81,33 @@ def index(request):
             request.session['voter_id'] = voter.id
         request.session.set_expiry(24*60*60)
         cookie = True
-    try:    
-        #Get current track
+    try:
         sock = mysocket.Mysocket()
         sock.connect(mysocket.ADDR, mysocket.PORT)
-        sock.mysend(format(4, '07'))
-        answer = sock.myreceive()
+        sock.mysend(format(6, '07'))
+        player_id = sock.myreceive()
         sock.close()
-    
-        current_track = Track.objects.get(pk=int(answer))
-
-        #Get current playing status
-        sock = mysocket.Mysocket()
-        sock.connect(mysocket.ADDR, mysocket.PORT)
-        sock.mysend(format(5, '07'))
-        answer = sock.myreceive()
-        sock.close()
-
-        if answer == format(1, '07'):
-            playing = True
-        elif answer == format(0, '07'):
-            playing = False
-        else:
-            playing = 'Error'
+        player = Player.objects.get(pk=int(player_id))
         player_running = True
+        votes_required_for_next = player.number_of_votes + 1
+        if settings.MUSICVOTING_VOTE_NEXT_MIN > votes_required_for_next:
+            votes_required_for_next = settings.MUSICVOTING_VOTE_NEXT_MIN
     except socket.error:
-        current_track = None
-        playing = None
         player_running = False
+        player = None
+        votes_required_for_next = None
 
     #Get tracks ranked by votes
     track_ranking = Track.objects.filter(votes__gt=0).order_by('-votes')
 
-    #Check if admin
-    admin = request.user.is_superuser
 
     context = {
-        'current_track': current_track,
         'track_ranking': track_ranking,
         'cookie': cookie,
         'voter': voter,
-        'playing': playing,
-        'admin': admin,
         'player_running': player_running,
+        'player': player,
+        'votes_required_for_next' : votes_required_for_next,
         }
     response = render(request, 'musicvoting/index.html', context)
     if cookie == False:
@@ -380,3 +366,49 @@ def shutdown(request):
         else:
             return HttpResponse('Unauthorized', status=401)
 
+@require_http_methods(["POST"])
+def vote_unvote_next(request):
+    if request.method == 'POST':
+        #get voter_id from session or redirect to main page
+        if 'voter_id' in request.session:
+            try:
+                voter = User.objects.get(pk=request.session['voter_id'])
+            except User.DoesNotExist:
+                #In case there is a cookie with a voter_id but not an corresponding entry in the database
+                voter = User()
+                voter.save()
+                request.session['voter_id'] = voter.id
+            request.session.set_expiry(24*60*60)
+        else:
+            return redirect('musicvoting:index')
+
+        try:
+            #Get Player object from musicplayer.py and the database
+            sock = mysocket.Mysocket()
+            sock.connect(mysocket.ADDR, mysocket.PORT)
+            sock.mysend(format(6, '07'))
+            player_id = sock.myreceive()
+            sock.close()
+            player = Player.objects.get(pk=int(player_id))
+
+            #Vote for playing next track
+            if voter.voted_next_track is None:
+                voter.voted_next_track = player
+            #Unvote for playing next track
+            else:
+                voter.voted_next_track = None
+            voter.save()
+
+            #If there are more votes for playing the next track than for playing the current track, tell musicplayer.py to play the next track.
+            count = player.user_set.count()
+            if count > player.number_of_votes and count >= settings.MUSICVOTING_VOTE_NEXT_MIN:
+                sock = mysocket.Mysocket()
+                sock.connect(mysocket.ADDR, mysocket.PORT)
+                sock.mysend(format(3, '07'))
+                answer = sock.myreceive()
+                sock.close()
+
+            return HttpResponse()
+
+        except:
+            return HttpResponseServerError("Something went wrong. musicplayer.py may not be running correctly.")

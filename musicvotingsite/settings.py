@@ -88,5 +88,8 @@ STATIC_ROOT ="/home/pi/Django/musicvotingsite/static_root/"
 # musicvoting settings
 MUSICVOTING_MUSIC_DIR = '/media/TOBIASTRUMM/Musik'
 
+#Number of votes that are required at least to force switching to the next track
+MUSICVOTING_VOTE_NEXT_MIN = 3
+
 # Force lighttpd to get the {% url %} tags right
 FORCE_SCRIPT_NAME = ''

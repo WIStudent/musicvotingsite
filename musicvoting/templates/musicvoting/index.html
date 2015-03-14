@@ -46,16 +46,22 @@
 			
 			{% include "musicvoting/player.html" %}
 		
-			{% if admin %}
 			<div class="btn-group btn-group-justified" data-loading-text="Loading...">
-				{% if playing %}
+				{% if user.is_superuser %}
+				{% if player.playing %}
 				<a class="btn btn-primary" id="pause_play_button" data-loading-text="Loading..." data-pause-text="Pause" data-unpause-text="Unpause" onClick="pause()">Pause</a>
 				{% else %}
 				<a class="btn btn-primary" id="pause_play_button" data-loading-text="Loading..." data-pause-text="Pause" data-unpause-text="Unpause" onClick="unpause()">Unpause</a>
 				{% endif %}
 				<a class="btn btn-primary" id="next_button" data-loading-text="Loading..." onClick="next()">Next</a>
+				{% endif %}<!-- if user.is_superuser -->
+				{% if voter.voted_next_track %}
+				<a class="btn btn-primary" id="vote_unvote_next_button" data-loading-text="Loading..." onClick="vote_unvote_next()" >Unvote next <span class="badge">{{ player.user_set.count }}/{{ votes_required_for_next }}</span></a>
+				{% else %}
+				<a class="btn btn-primary" id="vote_unvote_next_button" data-loading-text="Loading..." onClick="vote_unvote_next()" >Vote next <span class="badge">{{ player.user_set.count }}/{{ votes_required_for_next }}</span></a>
+				{% endif %}
 			</div>
-			{% endif %}<!-- if admin -->
+			
 			
 			{% else %}
 			<div class="alert alert-danger">Alert: Player is not running!</div>
@@ -66,7 +72,7 @@
 			<ul class="list-group">
 				{% for track in track_ranking %}
 				<li class="list-group-item track-item">
-					<div class="track_vote">					
+					<div class="track_vote">
 						<div>
 							{% if voter in track.voting_users.all %}
 							<button id="vote_unvote_button-{{ track.id }}" type="button" data-loading-text="Loading..." data-vote-text="Vote" data-unvote-text="Unvote" class="btn btn-primary" onClick="unvote({{ track.id }})">Unvote</button>

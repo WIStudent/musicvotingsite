@@ -14,7 +14,7 @@ class Album(models.Model):
         return u'%s' % self.album_name
 
 class User(models.Model):
-    pass
+    voted_next_track = models.ForeignKey('Player', null=True, blank=True, default=None)
 
 class Track(models.Model):
     artist = models.ForeignKey(Artist)
@@ -28,3 +28,9 @@ class Track(models.Model):
 
     def __unicode__(self):
         return u'%s -- %s -- %s' % (self.artist.artist_name, self.album.album_name, self.title)
+
+class Player(models.Model):
+    playing = models.BooleanField(default=False)
+    number_of_votes = models.IntegerField(default=0)
+    track = models.ForeignKey(Track, null=True, blank=True, default=None)
+
