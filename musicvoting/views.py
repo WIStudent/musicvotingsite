@@ -92,7 +92,7 @@ def index(request):
         votes_required_for_next = player.number_of_votes + 1
         if settings.MUSICVOTING_VOTE_NEXT_MIN > votes_required_for_next:
             votes_required_for_next = settings.MUSICVOTING_VOTE_NEXT_MIN
-    except socket.error:
+    except socket.error, Player.DoesNotExist:
         player_running = False
         player = None
         votes_required_for_next = None

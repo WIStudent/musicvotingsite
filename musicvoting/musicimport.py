@@ -3,8 +3,9 @@ from tinytag import TinyTag
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'musicvotingsite.settings'
 django.setup()
-from musicvoting.models import Track, User, Artist, Album
+from musicvoting.models import Track, User, Artist, Album, Player
 from django.conf import settings
+from django.db import connection
 
 import musicvoting.mysocket as mysocket
 from thread import start_new_thread
@@ -54,11 +55,16 @@ for root, dirs, files in os.walk(music_dir):
 
 #import files:
 #Delete all db entries
+cursor = connection.cursor()
+cursor.execute('DELETE FROM ' + Track._meta.db_table)
+cursor.execute('DELETE FROM ' + User._meta.db_table)
+cursor.execute('DELETE FROM ' + Artist._meta.db_table)
+cursor.execute('DELETE FROM ' + Album._meta.db_table)
 Track.objects.all().delete()
 User.objects.all().delete()
 Artist.objects.all().delete()
 Album.objects.all().delete()
-
+Player.objects.all().delete()
 
 for root, dirs, files in os.walk(music_dir):
     for file in files:
@@ -98,6 +104,7 @@ for root, dirs, files in os.walk(music_dir):
             track.save()
             number_processed += 1
 
+#TODO restart musicplayer.py
 #Set number_of_files, meaning that the import is finished.
 number_of_files = -2
 #Wait a short moment to be able to answer that the import has finished.
