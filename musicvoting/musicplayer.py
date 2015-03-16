@@ -29,23 +29,45 @@ pidfile = open(pidfile_path, "w")
 pidfile.write("%s" % os.getpid())
 pidfile.close()
 
-#If an entry for the player already exists in the database, use this entry.
-player_query_set = Player.objects.all()
-if len(player_query_set) > 0:
-    player_dbobj = player_query_set[0]
-else:
-    player_dbobj = Player()
 
-current_track = None
+player_dbobj = None
+player = None
 
-player = vlc.MediaPlayer()
+
+
+def setup_player():
+    #If an entry for the player already exists in the database, use this entry.
+    global player
+    global player_dbobj
+
+    player_query_set = Player.objects.all()
+    if len(player_query_set) > 0:
+        player_dbobj = player_query_set[0]
+    else:
+        player_dbobj = Player()
+
+    if player is None:
+        player = vlc.MediaPlayer()
+    else:
+        player.stop()
+        player = vlc.MediaPlayer()
+
+    #setting up music player
+    mp_em = player.event_manager()
+    mp_em.event_attach(vlc.EventType.MediaPlayerEndReached, next_track_callback)
+
+    if player_dbobj.track is None:
+        next_track()
+    #Play the track that was playing when the musicplayer was killed.
+    else:
+        player.set_mrl(player_dbobj.track.path)
+        player.play()
 
 def next_track():
     global player_dbobj
     player_dbobj.user_set.clear()
     max_votes = Track.objects.all().aggregate(Max('votes'))['votes__max']
     track_set = Track.objects.filter(votes=max_votes)
-    global current_track
     current_track = random.choice(track_set)
     player_dbobj.track = current_track
     player_dbobj.number_of_votes = current_track.votes
@@ -63,7 +85,6 @@ def handle_clientsocket(clientsocket):
     mysock = mysocket.Mysocket(clientsocket)
     msg = mysock.myreceive()
     global player
-    global current_track
     global player_dbobj
     #pause
     if msg == format(1, '07'):
@@ -83,11 +104,11 @@ def handle_clientsocket(clientsocket):
     elif msg == format(3, '07'):
         #print "playing next track"
         next_track()
-        mysock.mysend(format(current_track.id, '07'))
+        mysock.mysend(format(player_dbobj.track.id, '07'))
     #get track
     elif msg == format(4, '07'):
         #send back id of new track
-        ret = format(current_track.id, '07')
+        ret = format(player_dbobj.track.id, '07')
         mysock.mysend(ret)
     #is playing?
     elif msg == format(5, '07'):
@@ -95,29 +116,25 @@ def handle_clientsocket(clientsocket):
             mysock.mysend(format(1, '07'))
         else:
             mysock.mysend(format(0, '07'))
+    #is musicplayer.py running?
     elif msg == format(6, '07'):
         mysock.mysend(format(player_dbobj.id, '07'))
+    #reset player
+    elif msg == format(7, '07'):
+        setup_player()
+        mysock.mysend(format(1, '07'))
     mysock.close()
 
 def next_track_callback(event):
     #If next_track is not called in a separate track, the vlc player will not play the next track.
     start_new_thread(next_track, ())
 
+#Setting up player
+setup_player()
 #setting up socket
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serversocket.bind((mysocket.ADDR, mysocket.PORT))
 serversocket.listen(5)
-#setting up music player
-mp_em = player.event_manager()
-mp_em.event_attach(vlc.EventType.MediaPlayerEndReached, next_track_callback)
-
-if player_dbobj.track is None:
-    next_track()
-#Play the track that was playing when the musicplayer was killed.
-else:
-    current_track = player_dbobj.track
-    player.set_mrl(player_dbobj.track.path)
-    player.play()
 
 while True:
     clientsocket, address = serversocket.accept()

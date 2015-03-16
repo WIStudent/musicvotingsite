@@ -45,6 +45,14 @@ def handle_clientsocket(clientsocket):
 #start socket handling
 start_new_thread(handle_serversocket, ())
 
+
+#pause musicplayer.py
+sock = mysocket.Mysocket()
+sock.connect(mysocket.ADDR, mysocket.PORT)
+sock.mysend(format(1, '07'))
+sock.myreceive()
+sock.close()
+
 #Count files:
 music_dir = getattr(settings, 'MUSICVOTING_MUSIC_DIR')
 number_of_files = 0
@@ -104,7 +112,14 @@ for root, dirs, files in os.walk(music_dir):
             track.save()
             number_processed += 1
 
-#TODO restart musicplayer.py
+
+#Reset musicplayer.py
+sock = mysocket.Mysocket()
+sock.connect(mysocket.ADDR, mysocket.PORT)
+sock.mysend(format(7, '07'))
+sock.myreceive()
+sock.close()
+
 #Set number_of_files, meaning that the import is finished.
 number_of_files = -2
 #Wait a short moment to be able to answer that the import has finished.
