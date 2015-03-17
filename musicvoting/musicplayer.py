@@ -46,11 +46,11 @@ def setup_player():
     else:
         player_dbobj = Player()
 
-    if player is None:
-        player = vlc.MediaPlayer()
-    else:
+    if player is not None:
         player.stop()
-        player = vlc.MediaPlayer()
+        player.release()
+
+    player = vlc.MediaPlayer()
 
     #setting up music player
     mp_em = player.event_manager()
@@ -60,8 +60,11 @@ def setup_player():
         next_track()
     #Play the track that was playing when the musicplayer was killed.
     else:
-        player.set_mrl(player_dbobj.track.path)
-        player.play()
+        if os.path.isfile(player_dbobj.track.path):
+            player.set_mrl(player_dbobj.track.path)
+            player.play()
+        else:
+            next_track()
 
 def next_track():
     global player_dbobj
@@ -75,6 +78,10 @@ def next_track():
     current_track.save()
     current_track.voting_users.clear()
     #print (current_track.title + " votes: " + str(max_votes))
+    #Try playing next track if file does not exists.
+    if not os.path.isfile(player_dbobj.track.path):
+        next_track()
+        return None
     global player
     player.set_mrl(current_track.path)
     player.play()
