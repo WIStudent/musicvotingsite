@@ -6,9 +6,10 @@ from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 import os, socket, sys, time
-from musicvoting.models import Artist, Album, Track, User, Player
+from musicvoting.models import Artist, Album, Track, User, Player, Directory
 import musicvoting.mysocket as mysocket
 from subprocess import Popen
+from django.utils.html import escape
 # Create your views here.
 
 def pause(request):
@@ -310,8 +311,10 @@ def dbimport(request):
     if request.method == 'GET':
         if request.user.is_authenticated():
             if request.user.is_superuser:
+                directory_list = Directory.objects.all().order_by('path')
                 context = {
                     'import_running': import_running,
+                    'directory_list': directory_list,
                 }
                 return render(request, 'musicvoting/import.html', context)
             else:
@@ -352,6 +355,113 @@ def dbimport_status(request):
     }
     return JsonResponse(response)
 
+
+@require_http_methods(["POST"])
+def dbimport_mark_remove(request):
+    if request.user.is_superuser:
+        id = int(request.POST['path_id'])
+        path_dbobj = get_object_or_404(Directory, pk=id)
+        if not path_dbobj.locked:
+            #mark path to be not removed, mark its subdirectories to be removed and lock them.
+            if path_dbobj.remove:
+                path_dbobj.remove = False
+                for subdir in path_dbobj.subdirectories.all():
+                    subdir.remove = True
+                    subdir.locked = True
+                    subdir.save()
+            #mark path to be removed and unlock its subdirectories.
+            else:
+                path_dbobj.remove = True
+                for subdir in path_dbobj.subdirectories.all():
+                    subdir.locked = False
+                    subdir.save()
+            path_dbobj.save()
+
+        #create http response
+        directory_list = Directory.objects.all().order_by('path')
+        context = {
+            'directory_list': directory_list,
+        }
+        return render(request, 'musicvoting/import_directories.html', context)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
+@require_http_methods(["POST"])
+def dbimport_add_directory(request):
+    if request.user.is_superuser:
+        path = request.POST['path']
+        #check if path points to a valid directory
+        if os.path.isdir(path):
+            #normalize pathname
+            path = os.path.realpath(path)
+            error_state = 0
+            subdir_list = list()
+            parentdir_list = list()
+            directory_list = Directory.objects.all()
+            for dir_dbobj in directory_list:
+                #If path is already saved in database
+                if os.path.samefile(path, dir_dbobj.path):
+                    error_state = 1
+                    error_msg = "Directory " + escape(path) + " is already added"
+                    break
+                #If path is a subdirectory of an already saved directory
+                elif is_subdir(path, dir_dbobj.path):
+                    #if parent directory is marked to be removed
+                    if dir_dbobj.remove:
+                        parentdir_list.append(dir_dbobj)
+                    else:
+                        error_state = 2
+                        error_msg = "Directory " + escape(path) + " is a subdirectory of " + dir_dbobj.path
+                        break
+                #If an already saved directory is a subdirectory of path
+                elif is_subdir(dir_dbobj.path, path):
+                    error_state = 3
+                    subdir_list.append(dir_dbobj)
+            #Add path as new directory
+            if error_state == 0 or error_state == 3 or error_state == 4:
+                directory = Directory()
+                directory.path = path
+                directory.save()
+                error_msg = None
+                #add directory as subdirectory of parent_dir
+                for parentdir in parentdir_list:
+                    parentdir.subdirectories.add(directory)
+                #add subdirectories to directory
+                for subdir in subdir_list:
+                    directory.subdirectories.add(subdir)
+            
+            #mark all directories that are a subdirectory of path to be removed.
+            if error_state == 3:
+                error_msg = "Directories "
+                for subdir in subdir_list:
+                    subdir.remove = True
+                    subdir.locked = True
+                    subdir.save()
+                    error_msg +=  subdir.path + ", "
+                #remove last comma and whitespace
+                error_msg = error_msg[:-2]
+                error_msg += " are subdirectories of " + escape(path) + ". They were marked to be removed."
+
+        else:
+            error_msg = escape(path) + " is not a valid directory"
+
+        #Reload directory_list from database, because some Directory entries were changed/added
+        directory_list = Directory.objects.all().order_by('path')
+        context = {
+            'directory_list': directory_list,
+            'error_msg': error_msg,
+        }
+        return render(request, 'musicvoting/import_directories.html', context)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
+#helper function to check if a path is a subdirectory of another directory
+#see also http://stackoverflow.com/questions/8854421/how-to-determine-if-a-path-is-a-subdirectory-of-another/23355966#23355966
+def is_subdir(suspect_child, suspect_parent):
+    suspect_child = os.path.realpath(suspect_child)
+    suspect_parent = os.path.realpath(suspect_parent)
+    relative = os.path.relpath(suspect_child, start=suspect_parent)
+    return not relative.startswith(os.pardir)
 
 def shutdown(request):
     permission = request.user.is_superuser

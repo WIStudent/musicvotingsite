@@ -9,6 +9,10 @@ urlpatterns = patterns('',
                        url(r'^import/$', views.dbimport, name='dbimport'),
                        # ex: /importstatus/
                        url(r'^importstatus/$', views.dbimport_status, name='dbimport_status'),
+                       # ex: /importadddirectory/
+                       url(r'^importadddirectory/$', views.dbimport_add_directory, name='dbimport_add_directory'),
+                       # ex: /importmarkremove/
+                       url(r'^importmarkremove/$', views.dbimport_mark_remove, name='dbimport_mark_remove'),
                        # ex: /artist/
                        url(r'^artist/$', views.artist, name='artist'),
                        # ex: /artist/2

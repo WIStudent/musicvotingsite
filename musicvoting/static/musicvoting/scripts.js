@@ -224,6 +224,7 @@ function import_progress(){
 				else if(json.number_of_files == -2){
 					progress = 100;
 					progress_text = "Finished. " + json.number_processed + " tracks imported.";
+					
 				}
 				else{
 					progress = Math.round(json.number_processed / json.number_of_files * 100);
@@ -232,7 +233,18 @@ function import_progress(){
 				var progressbar = $('.progress-bar');
 				progressbar.css('width', progress+'%').attr('aria-valuenow', progress);
 				progressbar[0].innerHTML = progress_text;
-				setTimeout(import_progress, 2000);
+
+				if(json.number_of_files == -2){
+					setTimeout(
+						function(){
+							window.location = urls["dbimport"];
+						}, 
+						10000
+					);
+				}
+				else{
+					setTimeout(import_progress, 2000);
+				}
 			}
 		},
 	});
@@ -276,6 +288,40 @@ function vote_unvote_next(){
 			else if(this.pause_play_button_text == 'Unpause'){
 				this.pause_play_button.button('unpause');
 			}
+		},
+	});
+}
+
+function add_directory(){
+	$.ajax({
+		url: urls["dbimport_add_directory"],
+		type: "POST",
+		dataType: "html",
+		data: {
+			path: $('#directory-path-input').val(),
+		},
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		success: function(html){
+			$('#directory-list')[0].innerHTML = html;
+		},
+	});
+}
+
+function directory_mark_remove(id){
+	$.ajax({
+		url: urls["dbimport_mark_remove"],
+		type: "POST",
+		dataType: "html",
+		data: {
+			path_id: id,
+		},
+		headers: {
+			"X-CSRFToken": csrftoken,
+		},
+		success: function(html){
+			$('#directory-list')[0].innerHTML = html;
 		},
 	});
 }

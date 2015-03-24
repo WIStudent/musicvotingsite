@@ -37,6 +37,10 @@
 				</script>
 			</div>
 			{% else %}
+			<div id="directory-list">
+			{% include 'musicvoting/import_directories.html' %}
+			</div>
+			Red marked directories will be removed during the import. Press "Start import" button to start the import process. This can take some time.
 			<form role="form" action="{% url 'musicvoting:dbimport' %}" method="POST">
 				{% csrf_token %}
 				<button class="btn btn-default" type="submit">Start import</button>

@@ -1,0 +1,50 @@
+{% if error_msg %}
+<div class="alert alert-danger" role="alert">{{ error_msg }}</div>
+{% endif %}
+{% if directory_list %}
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Path</th>
+				<th>Last imported at</th>
+				<th>Tracks imported</th>
+				<th>Remove</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for directory in directory_list %}
+			<tr {% if directory.remove %}class="danger"{% endif %}>
+				<td>{{ directory.path }}</td>
+				<td>
+					{% if directory.imported_at %}
+					{{ directory.imported_at|date:'Y-m-d' }} {{ directory.imported_at|time:'H:i' }}
+					{% endif%}
+				</td>
+				<td>
+					{% if directory.number_of_imported_files %}
+					{{ directory.number_of_imported_files }}
+					{% endif %}
+				</td>
+				<td>
+					<button type="button" class="btn btn-default {% if directory.locked %}disabled{% endif %}" onClick="directory_mark_remove({{ directory.id }});">
+						{% if directory.remove %}Don't remove{% else %}Remove{% endif %}
+					</button>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">No directories were added.</div>
+{% endif %}
+<form role="form" action="#" onsubmit="add_directory();">
+	<div class="form-group">
+		<label  for="directory-path-input">Path:</label>
+		<input type="text" class="form-control" id="directory-path-input">
+	</div>
+	<div class="form-group">
+		<button type="submit" class="btn btn-default">Add directory</button>
+	</div>
+</form>

@@ -34,3 +34,10 @@ class Player(models.Model):
     number_of_votes = models.IntegerField(default=0)
     track = models.ForeignKey(Track, null=True, blank=True, default=None)
 
+class Directory(models.Model):
+    path = models.TextField()
+    remove = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
+    subdirectories = models.ManyToManyField('Directory')
+    imported_at = models.DateTimeField(default=None, null=True, blank=True)
+    number_of_imported_files = models.IntegerField(default=None, null=True, blank=True)
